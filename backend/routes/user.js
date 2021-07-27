@@ -52,7 +52,7 @@ router.get('/', async (req, res, next)=>{
 
 router.post('/trends', (req, res, next)=>{
     try{
-        console.log(req.body);
+        const { startDate, endDate, timeUnit, group }= req.body;
         res.json({
             "result": "success",
             "elements" : 3
