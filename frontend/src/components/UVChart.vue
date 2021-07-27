@@ -14,7 +14,7 @@
     <v-btn v-on:click="getData(); fillData() ">
       조회
     </v-btn>
-    <line-chart :chart-data="datacollection" />
+    <line-chart :chart-data="datacollection" :timeLength="this.timeLength" />
   </div>
 </template>
 
