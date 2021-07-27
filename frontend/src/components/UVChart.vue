@@ -11,11 +11,8 @@
         label="제휴사별 보기"
         value="3"/>
     </v-radio-group>
-    <v-btn v-on:click="fillData">
+    <v-btn v-on:click="fillData; getData">
       조회
-    </v-btn>
-    <v-btn v-on:click="getData">
-      데이터가져오기
     </v-btn>
     <line-chart :chart-data="datacollection" />
   </div>
@@ -26,7 +23,7 @@ import LineChart from './LineChart.vue'
 import axios from 'axios'
 
 // var realData = {}
-var jsonfile = {
+/* var jsonfile = {
   users: [
     {
       DATE: '2021-07-08',
@@ -179,6 +176,7 @@ var datagroup4 = jsonfile1.users.map(function (e) {
 var datagroup5 = jsonfile1.users.map(function (e) {
   return Number(e['0000005'])
 })
+*/
 
 export default {
   props: {
@@ -195,100 +193,112 @@ export default {
     return {
       datacollection: null,
       radio: null,
-      realdata: null
+      realdata: {
+        result: 'success',
+        elements: [1, 1, 1, 2]
+      }
+
     }
   },
   mounted () {
     this.fillData()
+    this.getData()
   },
   methods: {
     fillData () {
       if (this.radio === '1') {
         this.datacollection = {
-          labels: labels,
+          labels: [1, 2, 3, 4],
           datasets: [
             {
               label: '전체',
               borderColor: 'rgb(54, 162, 235)',
               pointBackgroundColor: 'rgb(54, 162, 235)',
               fill: false,
-              data: dataall
+              data: this.realdata.elements
             }
           ]
         }
       } else if (this.radio === '2') {
         this.datacollection = {
-          labels: labels,
+          // labels: labels,
           datasets: [
             {
               label: '관리자',
               borderColor: 'rgb(54, 162, 235)',
               pointBackgroundColor: 'rgb(54, 162, 235)',
               fill: false,
-              data: datagroupadm
+              data: this.realdata.elements.map(function (e) { return Number(e['1']) })
             },
             {
               label: '제휴',
               borderColor: 'rgb(255, 205, 86)',
               pointBackgroundColor: 'rgb(255, 205, 86)',
               fill: false,
-              data: datagroupapr
+              data: this.realdata.elements.map(function (e) { return Number(e['2']) })
             },
             {
               label: '제휴현업',
               borderColor: 'rgb(102, 205, 86)',
               pointBackgroundColor: 'rgb(102, 205, 86)',
               fill: false,
-              data: datagroupAFF
+              data: this.realdata.elements.map(function (e) { return Number(e['3']) })
+            },
+            {
+              label: '기타',
+              borderColor: 'rgb(102, 205, 86)',
+              pointBackgroundColor: 'rgb(102, 205, 86)',
+              fill: false,
+              data: this.realdata.elements.map(function (e) { return Number(e['4']) })
             }
           ]
         }
       } else if (this.radio === '3') {
         this.datacollection = {
-          labels: clilabels,
+          // labels: clilabels,
           datasets: [
             {
               label: this.$store.getters.getById('0000001'),
               borderColor: 'rgb(54, 162, 235)',
               pointBackgroundColor: 'rgb(54, 162, 235)',
-              fill: false,
-              data: datagroup1
+              fill: false
+              // data: datagroup1
             },
             {
               label: this.$store.getters.getById('0000002'),
               borderColor: 'rgb(54, 162, 235)',
               pointBackgroundColor: 'rgb(54, 162, 235)',
-              fill: false,
-              data: datagroup2
+              fill: false
+              // data: datagroup2
             },
             {
               label: this.$store.getters.getById('0000003'),
               borderColor: 'rgb(54, 162, 235)',
               pointBackgroundColor: 'rgb(54, 162, 235)',
-              fill: false,
-              data: datagroup3
+              fill: false
+              // data: datagroup3
             },
             {
               label: this.$store.getters.getById('0000004'),
               borderColor: 'rgb(54, 162, 235)',
               pointBackgroundColor: 'rgb(54, 162, 235)',
-              fill: false,
-              data: datagroup4
+              fill: false
+              // data: datagroup4
             },
             {
               label: this.$store.getters.getById('0000005'),
               borderColor: 'rgb(54, 162, 235)',
               pointBackgroundColor: 'rgb(54, 162, 235)',
-              fill: false,
-              data: datagroup5
+              fill: false
+              // data: datagroup5
             }
           ]
         }
       }
     },
     async getData (startdate, enddate, timeunit, group) {
-      const res = await axios.post('http://localhost:3000/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: this.radio })
-      this.realdata = res.data
+      const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+      // this.realdata = res.data
       console.log(res.data)
     }
   },

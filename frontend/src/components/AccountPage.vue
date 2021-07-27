@@ -3,14 +3,14 @@
     <div>
     <v-container>
       <date-select @receiveDate="receiveDate" />
-      <random-chart :date="this.date" :date2="this.date2" />
+      <account-chart :date="this.date" :date2="this.date2" />
     </v-container>
     </div>
   </v-app>
 </template>
 
 <script>
-import RandomChart from './UserChart.vue'
+import AccountChart from './AccountChart.vue'
 import DateSelect from './DateSelect.vue'
 
 export default {
@@ -19,7 +19,7 @@ export default {
     date2: null
   }),
   components: {
-    RandomChart,
+    AccountChart,
     DateSelect
   },
   methods: {
