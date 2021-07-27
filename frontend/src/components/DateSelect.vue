@@ -1,9 +1,8 @@
 <template>
+<v-container>
     <v-row>
     <v-col
-        cols="12"
-        sm="6"
-        md="4"
+        cols="4"
     >
         <v-menu
             ref="menu"
@@ -50,9 +49,7 @@
         </v-menu>
     </v-col>
     <v-col
-        cols="12"
-        sm="6"
-        md="4"
+        cols="4"
     >
         <v-menu
             ref="menu2"
@@ -98,7 +95,67 @@
                 </v-date-picker>
         </v-menu>
     </v-col>
+    <v-col
+        cols="2"
+    >
+    <v-select
+        v-model="timelength"
+        :items="items"
+        item-text="dis"
+        item-value="key"
+        label="기간"
+        outlined
+        v-on:change="sendTimeLength"
+    ></v-select>
+    </v-col>
     </v-row>
+    <v-container v-if="timelength === 'hour'">
+    <v-row>
+        <v-col
+            cols="4"
+        >
+        <v-menu
+            v-model="menu3"
+        >
+        <template v-slot:activator="{ on }">
+            <v-text-field
+                :value="time1"
+                label="시작시간"
+                readonly
+                v-on="on"
+            ></v-text-field>
+        </template>
+        <v-time-picker
+            v-if="menu3"
+            :value="time1"
+            @click:hour="closePicker1"
+        ></v-time-picker>
+        </v-menu>
+        </v-col>
+        <v-col
+            cols="4"
+        >
+        <v-menu
+            v-model="menu4"
+        >
+        <template v-slot:activator="{ on }">
+            <v-text-field
+                :value="time2"
+                label="시작시간"
+                readonly
+                v-on="on"
+            ></v-text-field>
+        </template>
+        <v-time-picker
+            v-if="menu4"
+            :value="time2"
+            @click:hour="closePicker2"
+        ></v-time-picker>
+        </v-menu>
+        </v-col>
+    </v-row>
+    </v-container>
+</v-container>
 </template>
 
 <script>
@@ -106,9 +163,20 @@ export default {
   data: () => ({
     date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     date2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    timelength: 'day',
     menu: false,
     modal: false,
-    menu2: false
+    menu2: false,
+    time1: null,
+    time2: null,
+    menu3: false,
+    menu4: false,
+    items: [
+      { dis: '시간', key: 'hour' },
+      { dis: '일', key: 'day' },
+      { dis: '주', key: 'week' },
+      { dis: '월', key: 'month' }
+    ]
   }),
   methods: {
     sendDate () {
@@ -120,10 +188,26 @@ export default {
       if (d1 > d2) {
         this.date = this.date2
       }
+    },
+    sendTimeLength () {
+      this.$emit('sendTimeLength', this.timelength)
+    },
+    closePicker1: function (v) {
+      v = v < 10 ? '0' + v : v
+      this.time1 = v + ':00'
+      this.menu3 = false
+      this.$emit('receiveTime', this.time1, this.time2)
+    },
+    closePicker2: function (v) {
+      v = v < 10 ? '0' + v : v
+      this.time2 = v + ':00'
+      this.menu4 = false
+      this.$emit('receiveTime', this.time1, this.time2)
     }
   },
   mounted () {
     this.sendDate()
+    this.sendTimeLength()
   }
 }
 </script>

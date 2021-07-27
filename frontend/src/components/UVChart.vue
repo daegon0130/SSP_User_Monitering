@@ -14,14 +14,18 @@
     <v-btn v-on:click="fillData">
       조회
     </v-btn>
+    <v-btn v-on:click="getData">
+      데이터가져오기
+    </v-btn>
     <line-chart :chart-data="datacollection" />
   </div>
 </template>
 
 <script>
 import LineChart from './LineChart.vue'
-// import test from '../data/test.json'
+import axios from 'axios'
 
+// var realData = {}
 var jsonfile = {
   users: [
     {
@@ -177,10 +181,12 @@ var datagroup5 = jsonfile1.users.map(function (e) {
 })
 
 export default {
-  // private testdata = test,
   props: {
     date: String,
-    date2: String
+    date2: String,
+    time1: String,
+    time2: String,
+    timeLength: String
   },
   components: {
     LineChart
@@ -188,7 +194,8 @@ export default {
   data () {
     return {
       datacollection: null,
-      radio: null
+      radio: null,
+      realdata: null
     }
   },
   mounted () {
@@ -278,6 +285,11 @@ export default {
           ]
         }
       }
+    },
+    async getData (startdate, enddate, timeunit, group) {
+      const res = await axios.post('http://localhost:3000/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: this.radio })
+      this.realdata = res.data
+      console.log(res.data)
     }
   },
   computed: {
