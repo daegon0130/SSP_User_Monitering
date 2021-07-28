@@ -5,41 +5,69 @@ const { User, TimeLog } = require('../models');
 
 const router = express.Router();
 
-const user_grp_domain = (async ()=>{
-    const result = await sequelize.query('SELECT DISTINCT(user_grp) FROM usr_user', 
-                { 
-                    type: QueryTypes.SELECT
-                });
-    let res = [];
-    for (let el of result){
-        res.push(el.user_grp);
-    }
-    console.log(res);
-    return result;
-})()
-const user_org_id_domain = (async ()=>{
-    const result = await sequelize.query('SELECT DISTINCT(user_org_id) FROM usr_user', 
-                { 
-                    type: QueryTypes.SELECT
-                });
-    let res = [];
-    for (let el of result){
-        res.push(el.user_org_id);
-    }
-    console.log(res);
-    return res;
-})()
+let user_grp_domain, user_org_id_domain, page_domain;
+
+const get_domain  = (async ()=>{
+    user_grp_domain = await (async ()=>{
+        const result = await sequelize.query('SELECT DISTINCT(user_grp) FROM usr_user', 
+                    { 
+                        type: QueryTypes.SELECT
+                    });
+        let res = [];
+        for (let el of result){
+            res.push(el.user_grp);
+        }
+        console.log(res);
+        return res;
+    })();
+    user_org_id_domain = (async ()=>{
+        const result = await sequelize.query('SELECT DISTINCT(user_org_id) FROM usr_user', 
+                    { 
+                        type: QueryTypes.SELECT
+                    });
+        let res = [];
+        for (let el of result){
+            res.push(el.user_org_id);
+        }
+        console.log(res);
+        return res;
+    })();
+    page_domain = await (async ()=>{
+        const result = await sequelize.query('SELECT DISTINCT(page) FROM time_log', 
+                    { 
+                        type: QueryTypes.SELECT
+                    });
+        let res = [];
+        for (let el of result){
+            res.push(el.page);
+        }
+        console.log(res);
+        return res;
+    })();
+})();
 
 // groupby function
 const groupBy = function (data, key, grp) {
-    const sol = data.reduce(function (carry, el) {
+    const sol = data.reduce((carry, el) =>{
         let group = el[key];
 
         if (carry[group] === undefined) {
             carry[group] = {};
             carry[group].time = el[key];
+            if (grp==='user_grp'){
+                for (let ele of user_grp_domain){
+                    carry[group][ele] = 0;
+                }
+            }else if (grp==='user_org_id'){
+                for (let ele of user_org_id_domain){
+                    carry[group][ele] = 0;
+                }
+            }else {
+                for (let ele of page_domain){
+                    carry[group][ele] = 0;
+                }
+            }
         }
-        //carry[group].push(el)
         carry[group][el[grp]] = el.all;
         return carry;
     }, {});
