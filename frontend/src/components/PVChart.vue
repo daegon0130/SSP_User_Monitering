@@ -221,7 +221,7 @@ export default {
             },
             {
               label: '마케팅',
-              backgroundColor: '#f803fc',
+              backgroundColor: '#7fe3aa',
               fill: false,
               data: datagroup38,
               tension: 0.1

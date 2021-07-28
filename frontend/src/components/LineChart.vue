@@ -23,17 +23,12 @@ export default {
           {
             type: 'time',
             time: {
-              unit: 'day',
+              unit: this.timeLength,
               displayFormats: {
-                millisecond: 'MMM DD',
-                second: 'MMM DD',
-                minute: 'MMM DD',
-                hour: 'MMM DD',
+                hour: 'HH:mm',
                 day: 'MMM DD',
-                wee: 'MMM DD',
-                month: 'MMM DD',
-                quarter: 'MMM DD',
-                year: 'MMM DD'
+                week: 'MMM DD',
+                month: 'MM'
               }
             },
             scaleLabel: {

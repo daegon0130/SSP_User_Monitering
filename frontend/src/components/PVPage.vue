@@ -3,7 +3,7 @@
     <div>
     <v-container>
       <date-select @receiveDate="receiveDate" @sendTimeLength="receiveTimeLength" @receiveTime="receiveTime"/>
-      <PVChart :date="this.date" :date2="this.date2" :timeLength="this.timelength" :time1="this.time1" :time2="this.time2" />
+      <PVChart delay=100000 :date="this.date" :date2="this.date2" :timeLength="this.timelength" :time1="this.time1" :time2="this.time2" />
     </v-container>
     </div>
   </v-app>
