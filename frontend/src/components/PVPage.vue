@@ -2,15 +2,15 @@
   <v-app>
     <div>
     <v-container>
-      <date-select @receiveDate="receiveDate" @receiveTime="receiveTime" />
-      <account-chart :date="this.date" :date2="this.date2" :time1="this.time1" :time2="this.time2"/>
+      <date-select @receiveDate="receiveDate" @sendTimeLength="receiveTimeLength" @receiveTime="receiveTime"/>
+      <PVChart :date="this.date" :date2="this.date2" :timeLength="this.timelength" :time1="this.time1" :time2="this.time2" />
     </v-container>
     </div>
   </v-app>
 </template>
 
 <script>
-import AccountChart from './AccountChart.vue'
+import PVChart from './PVChart.vue'
 import DateSelect from './DateSelect.vue'
 
 export default {
@@ -22,7 +22,7 @@ export default {
     timelength: null
   }),
   components: {
-    AccountChart,
+    PVChart,
     DateSelect
   },
   methods: {

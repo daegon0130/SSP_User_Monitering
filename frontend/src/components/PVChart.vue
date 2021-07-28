@@ -10,17 +10,22 @@
       <v-radio
         label="제휴사별 보기"
         value="3"/>
+      <v-radio
+        label="페이지별 보기"
+        value="4"/>
     </v-radio-group>
     <v-btn v-on:click="getData(); fillData() ">
       조회
     </v-btn>
-    <line-chart-account :chart-data="datacollection" :timeLength="this.timeLength" />
+    <StackedChartPV v-if="radio === '4'" :chart-data="datacollection" :timeLength="this.timeLength" />
+    <LineChartPV v-else :chart-data="datacollection" :timeLength="this.timeLength" />
   </div>
 </template>
 
 <script>
-import LineChartAccount from './LineChartAccount.vue'
 import axios from 'axios'
+import LineChartPV from './LineChartPV.vue'
+import StackedChartPV from './SChartPV'
 
 export default {
   props: {
@@ -31,7 +36,8 @@ export default {
     timeLength: String
   },
   components: {
-    LineChartAccount
+    StackedChartPV,
+    LineChartPV
   },
   data () {
     return {
@@ -148,14 +154,93 @@ export default {
             }
           ]
         }
+      } else if (this.radio === '4') {
+        var labels3 = this.realdata.map(function (e) { return e.time })
+        var datagroup31 = this.realdata.map(function (e) { return Number(e.das) })
+        var datagroup32 = this.realdata.map(function (e) { return Number(e.cmc) })
+        var datagroup33 = this.realdata.map(function (e) { return Number(e.sal) })
+        var datagroup34 = this.realdata.map(function (e) { return Number(e.ses) })
+        var datagroup35 = this.realdata.map(function (e) { return Number(e.cus) })
+        var datagroup36 = this.realdata.map(function (e) { return Number(e.sts) })
+        var datagroup37 = this.realdata.map(function (e) { return Number(e.cuc) })
+        var datagroup38 = this.realdata.map(function (e) { return Number(e.mkt) })
+        this.datacollection = {
+          labels: labels3,
+          datasets: [
+            {
+              label: '대시보드',
+              borderColor: 'rgb(54, 162, 235)',
+              pointBackgroundColor: 'rgb(54, 162, 235)',
+              fill: false,
+              data: datagroup31,
+              tension: 0.1
+            },
+            {
+              label: '상품관리',
+              borderColor: 'rgb(255, 205, 86)',
+              pointBackgroundColor: 'rgb(255, 205, 86)',
+              fill: false,
+              data: datagroup32,
+              tension: 0.1
+            },
+            {
+              label: '판매관리',
+              borderColor: 'rgb(102, 205, 86)',
+              pointBackgroundColor: 'rgb(102, 205, 86)',
+              fill: false,
+              data: datagroup33,
+              tension: 0.1
+            },
+            {
+              label: '정산관리',
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup34,
+              tension: 0.1
+            },
+            {
+              label: '고객관리',
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup35,
+              tension: 0.1
+            },
+            {
+              label: '통계관리',
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup36,
+              tension: 0.1
+            },
+            {
+              label: '고객센터',
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup37,
+              tension: 0.1
+            },
+            {
+              label: '마케팅',
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup38,
+              tension: 0.1
+            }
+          ]
+        }
       }
     },
     async getData (startdate, enddate, timeunit, group) {
       if (this.timeLength === 'hour') {
-        const res = await axios.post('http://localhost:3000/api/v/user/trends', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        const res = await axios.post('http://localhost:3000/api/v/pv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
       } else {
-        const res = await axios.post('http://localhost:3000/api/v/user/trends', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        const res = await axios.post('http://localhost:3000/api/v/pv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
       }
     }

@@ -49,7 +49,6 @@ export default {
       if (this.radio === '1') {
         var labels = this.realdata.map(function (e) { return e.time })
         var data1 = this.realdata.map(function (e) { return Number(e.all) })
-        console.log('check')
         this.datacollection = {
           labels: labels,
           datasets: [
@@ -152,8 +151,13 @@ export default {
       }
     },
     async getData (startdate, enddate, timeunit, group) {
-      const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
-      this.realdata = res.data
+      if (this.timeLength === 'hour') {
+        const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        this.realdata = res.data
+      } else {
+        const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        this.realdata = res.data
+      }
     }
   },
   computed: {

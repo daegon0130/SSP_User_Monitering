@@ -5,6 +5,7 @@ import AccountPage from './../components/AccountPage.vue'
 import Dashboard from './../components/Dashboard.vue'
 import AddClient from './../components/AddClient.vue'
 import UVPage from './../components/UVPage.vue'
+import PVPage from './../components/PVPage.vue'
 
 Vue.use(Router)
 
@@ -30,6 +31,11 @@ export default new Router({
       path: '/UVPage',
       name: 'UVPage',
       component: UVPage
+    },
+    {
+      path: '/PVPage',
+      name: 'PVPage',
+      component: PVPage
     }
   ]
 })
