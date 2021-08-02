@@ -1,6 +1,19 @@
 <template>
 <v-container>
     <v-row>
+        <v-col
+        cols="2"
+    >
+    <v-select
+        v-model="timelength"
+        :items="items"
+        item-text="dis"
+        item-value="key"
+        label="기간"
+        outlined
+        v-on:change="sendTimeLength(); changedate(); sendDate()"
+    ></v-select>
+    </v-col>
     <v-col
         cols="4"
     >
@@ -48,6 +61,7 @@
                 </v-date-picker>
         </v-menu>
     </v-col>
+    <span class="center">~</span>
     <v-col
         cols="4"
     >
@@ -95,19 +109,6 @@
                 </v-date-picker>
         </v-menu>
     </v-col>
-    <v-col
-        cols="2"
-    >
-    <v-select
-        v-model="timelength"
-        :items="items"
-        item-text="dis"
-        item-value="key"
-        label="기간"
-        outlined
-        v-on:change="sendTimeLength"
-    ></v-select>
-    </v-col>
     </v-row>
     <v-container v-if="timelength === 'hour'">
     <v-row>
@@ -141,7 +142,7 @@
         <template v-slot:activator="{ on }">
             <v-text-field
                 :value="time2"
-                label="시작시간"
+                label="종료시간"
                 readonly
                 v-on="on"
             ></v-text-field>
@@ -161,14 +162,14 @@
 <script>
 export default {
   data: () => ({
-    date: (new Date((Date.now() - 518400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    date: (new Date((Date.now() - 1036800000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     date2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     timelength: 'day',
     menu: false,
     modal: false,
     menu2: false,
-    time1: null,
-    time2: null,
+    time1: '00:00',
+    time2: '24:00',
     menu3: false,
     menu4: false,
     items: [
@@ -192,6 +193,21 @@ export default {
     sendTimeLength () {
       this.$emit('sendTimeLength', this.timelength)
     },
+    changedate () {
+      if (this.timelength === 'hour') {
+        this.date = (new Date((Date.now() - 86400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+        this.date2 = (new Date((Date.now() - 86400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+      } else if (this.timelength === 'day') {
+        this.date = (new Date((Date.now() - 1036800000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+        this.date2 = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+      } else if (this.timelength === 'week') {
+        this.date = (new Date((Date.now() - 4354560000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+        this.date2 = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+      } else if (this.timelength === 'month') {
+        this.date = (new Date((Date.now() - 31536000000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+        this.date2 = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+      }
+    },
     closePicker1: function (v) {
       v = v < 10 ? '0' + v : v
       this.time1 = v + ':00'
@@ -211,3 +227,10 @@ export default {
   }
 }
 </script>
+
+<style>
+
+.center {
+    line-height: 80px;
+}
+</style>

@@ -6,6 +6,7 @@ import Dashboard from './../components/Dashboard.vue'
 import AddClient from './../components/AddClient.vue'
 import UVPage from './../components/UVPage.vue'
 import PVPage from './../components/PVPage.vue'
+import Realtime from './../components/Realtime'
 
 Vue.use(Router)
 
@@ -16,6 +17,11 @@ export default new Router({
       path: '/',
       name: 'Dashboard',
       component: Dashboard
+    },
+    {
+      path: '/Realtime',
+      name: 'Realtime',
+      component: Realtime
     },
     {
       path: '/AccountPage',

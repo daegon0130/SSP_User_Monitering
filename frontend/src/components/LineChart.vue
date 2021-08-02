@@ -5,49 +5,25 @@ const { reactiveProp } = mixins
 export default {
   extends: Line,
   mixins: [reactiveProp],
-  props: {
-    date: String,
-    date2: String,
-    timeLength: String
-  },
+  props: [
+    'chartData',
+    'options',
+    {
+      date: String,
+      date2: String,
+      timeLength: String
+    }],
   data: () => ({
-    options: {
-      title: {
-        display: true,
-        text: 'UV'
-      },
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        xAxes: [
-          {
-            type: 'time',
-            time: {
-              unit: this.timeLength,
-              displayFormats: {
-                hour: 'HH:mm',
-                day: 'MMM DD',
-                week: 'MMM DD',
-                month: 'MM'
-              }
-            },
-            scaleLabel: {
-              display: true,
-              labelString: '기간'
-            }
-          }
-        ],
-        yAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: 'Unique Visitors'
-            }
-          }
-        ]
-      }
-    }
   }),
+  watch: {
+    options: {
+      handler (newOption, oldOption) {
+        this.$data._chart.destroy()
+        this.renderChart(this.chartData, this.options)
+      },
+      deep: true
+    }
+  },
   mounted () {
     this.renderChart(this.chartData, this.options)
   }

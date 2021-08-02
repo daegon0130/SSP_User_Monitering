@@ -14,7 +14,7 @@
     <v-btn v-on:click="getData(); fillData() ">
       조회
     </v-btn>
-    <line-chart :chart-data="datacollection" :timeLength="this.timeLength" />
+    <line-chart :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
   </div>
 </template>
 
@@ -37,7 +37,43 @@ export default {
     return {
       datacollection: null,
       radio: null,
-      realdata: {}
+      realdata: {},
+      options: {
+        title: {
+          display: true,
+          text: 'UV'
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [
+            {
+              type: 'time',
+              time: {
+                unit: this.timeLength,
+                displayFormats: {
+                  hour: 'HH:mm',
+                  day: 'MMM DD',
+                  week: 'MM DD',
+                  month: 'MMM'
+                }
+              },
+              scaleLabel: {
+                display: true,
+                labelString: '기간'
+              }
+            }
+          ],
+          yAxes: [
+            {
+              scaleLabel: {
+                display: true,
+                labelString: 'Unique Visitors'
+              }
+            }
+          ]
+        }
+      }
     }
   },
   mounted () {

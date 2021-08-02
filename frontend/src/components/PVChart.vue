@@ -3,16 +3,10 @@
     <v-radio-group v-model = "radio" mandatory>
       <v-radio
         label="전체보기"
-        value="1"/>
+        value="2"/>
       <v-radio
         label="그룹별 보기"
         value="3"/>
-      <v-radio
-        label="제휴사별 보기"
-        value="4"/>
-      <v-radio
-        label="페이지별 보기"
-        value="2"/>
     </v-radio-group>
     <v-btn v-on:click="getData(); fillData() ">
       조회
