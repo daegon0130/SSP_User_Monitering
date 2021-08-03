@@ -4,7 +4,6 @@ const morgan = require('morgan');
 const cors = require('cors');
 
 const { sequelize } = require('./models/');
-const indexRouter = require('./routes');
 const userRouter = require('./routes/user');
 const timelogRouter = require('./routes/timeLog');
 
@@ -29,7 +28,6 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 
-app.use('/', indexRouter);
 app.use('/api/user', userRouter);
 app.use('/api/v', timelogRouter);
 

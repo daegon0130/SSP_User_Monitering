@@ -6,6 +6,11 @@ module.exports = class UserLog extends Sequelize.Model{
             time : {
                 type: Sequelize.DATE,
                 allowNull: false,
+                defaultValue: Sequelize.NOW,
+            },
+            total_num: {    // 총 유저 수
+                type: Sequelize.INTEGER,
+                allowNull: false,
             },
             adm : { //관리자
                 type: Sequelize.INTEGER,
