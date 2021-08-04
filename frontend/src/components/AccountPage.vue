@@ -15,11 +15,11 @@ import DateSelect from './DateSelect.vue'
 
 export default {
   data: () => ({
-    date: null,
-    date2: null,
+    date: (new Date((Date.now() - 2036800000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    date2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     time1: null,
     time2: null,
-    timelength: null
+    timelength: 'day'
   }),
   components: {
     AccountChart,

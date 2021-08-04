@@ -191,10 +191,13 @@ export default {
       if (this.timeLength === 'hour') {
         const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
+        this.fillData()
       } else {
+        console.log(this.date, this.date2, this.timeLength, this.radio)
         const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
         this.loaded = true
+        this.fillData()
       }
     }
   },

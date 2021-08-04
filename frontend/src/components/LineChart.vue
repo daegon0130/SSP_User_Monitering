@@ -20,6 +20,7 @@ export default {
       handler (newOption, oldOption) {
         this.$data._chart.destroy()
         this.renderChart(this.chartData, this.options)
+        this.$data._chart.update()
       },
       deep: true
     }
