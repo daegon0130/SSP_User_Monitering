@@ -162,7 +162,7 @@
 <script>
 export default {
   data: () => ({
-    date: (new Date((Date.now() - 1036800000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    date: (new Date((Date.now() - 2036800000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     date2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     timelength: 'day',
     menu: false,

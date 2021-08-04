@@ -7,6 +7,8 @@ import AddClient from './../components/AddClient.vue'
 import UVPage from './../components/UVPage.vue'
 import PVPage from './../components/PVPage.vue'
 import Realtime from './../components/Realtime'
+import UserDistribution from './../components/UserDistribution'
+import Heatmap from './../components/Heatmap'
 
 Vue.use(Router)
 
@@ -42,6 +44,16 @@ export default new Router({
       path: '/PVPage',
       name: 'PVPage',
       component: PVPage
+    },
+    {
+      path: '/UserDistribution',
+      name: 'UserDistribution',
+      component: UserDistribution
+    },
+    {
+      path: '/Heatmap',
+      name: 'Heatmap',
+      component: Heatmap
     }
   ]
 })

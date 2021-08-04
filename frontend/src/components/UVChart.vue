@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-radio-group v-model = "radio" mandatory>
+    <v-radio-group row v-model = "radio" mandatory>
       <v-radio
         label="전체보기"
         value="1"/>
@@ -14,7 +14,7 @@
     <v-btn v-on:click="getData(); fillData() ">
       조회
     </v-btn>
-    <line-chart :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
+    <line-chart v-if="this.loaded" :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
   </div>
 </template>
 
@@ -38,6 +38,7 @@ export default {
       datacollection: null,
       radio: null,
       realdata: {},
+      loaded: false,
       options: {
         title: {
           display: true,
@@ -193,6 +194,7 @@ export default {
       } else {
         const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
+        this.loaded = true
       }
     }
   },

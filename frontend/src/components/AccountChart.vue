@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-radio-group v-model = "radio" mandatory>
+    <v-radio-group row v-model = "radio" mandatory>
       <v-radio
         label="전체보기"
         value="1"/>
@@ -107,10 +107,10 @@ export default {
         }
       } else if (this.radio === '3') {
         var labels2 = this.realdata.map(function (e) { return e.time })
-        var datagroup21 = this.realdata.map(function (e) { return Number(e['1']) })
-        var datagroup22 = this.realdata.map(function (e) { return Number(e['2']) })
-        var datagroup23 = this.realdata.map(function (e) { return Number(e['3']) })
-        var datagroup24 = this.realdata.map(function (e) { return Number(e['4']) })
+        var datagroup21 = this.realdata.map(function (e) { return Number(e['0000001']) })
+        var datagroup22 = this.realdata.map(function (e) { return Number(e['0000002']) })
+        var datagroup23 = this.realdata.map(function (e) { return Number(e['0000003']) })
+        var datagroup24 = this.realdata.map(function (e) { return Number(e['0000004']) })
         this.datacollection = {
           labels: labels2,
           datasets: [
@@ -152,10 +152,11 @@ export default {
     },
     async getData (startdate, enddate, timeunit, group) {
       if (this.timeLength === 'hour') {
-        const res = await axios.post('http://localhost:3000/api/v/user/trends', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        const res = await axios.post('http://localhost:3000/api/user/trends', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
       } else {
-        const res = await axios.post('http://localhost:3000/api/v/user/trends', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        const res = await axios.post('http://localhost:3000/api/user/trends', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        console.log(this.date, this.date2, this.timeLength, this.radio)
         this.realdata = res.data
       }
     }

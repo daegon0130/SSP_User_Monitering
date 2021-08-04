@@ -19,7 +19,7 @@ export default {
     date2: null,
     time1: null,
     time2: null,
-    timelength: null
+    timelength: 'day'
   }),
   components: {
     UVChart,

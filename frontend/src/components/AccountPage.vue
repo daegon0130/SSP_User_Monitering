@@ -2,8 +2,8 @@
   <v-app>
     <div>
     <v-container>
-      <date-select @receiveDate="receiveDate" @receiveTime="receiveTime" />
-      <account-chart :date="this.date" :date2="this.date2" :time1="this.time1" :time2="this.time2"/>
+      <date-select @receiveDate="receiveDate" @sendTimeLength="receiveTimeLength" @receiveTime="receiveTime" />
+      <account-chart :date="this.date" :date2="this.date2" :time1="this.time1" :time2="this.time2" :timeLength="this.timelength"/>
     </v-container>
     </div>
   </v-app>

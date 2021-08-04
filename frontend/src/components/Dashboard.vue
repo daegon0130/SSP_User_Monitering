@@ -8,7 +8,7 @@
           <div>실시간 활성 사용자</div>
       <v-container>
         <v-container>
-        <v-radio-group v-model="radios3" mandatory>
+        <v-radio-group row v-model="radios3" mandatory>
           <v-radio
           label= "그룹별 UV 구성비율"
           value= "1"
@@ -57,6 +57,9 @@
         </v-flex>
       </v-layout>
     </v-container>
+    <v-container>
+      <piechart-3/>
+    </v-container>
   </div>
   </v-app>
 </template>
@@ -69,6 +72,7 @@ import Stackedchart from './Stackedchart.vue'
 import Piechart from './Piechart.vue'
 import Piechart1 from './Piechart1.vue'
 import AccountChart1 from './AccountChart1.vue'
+import Piechart3 from './Piechart3.vue'
 // import Menus from './Menus.vue'
 
 export default {
@@ -80,7 +84,8 @@ export default {
     Stackedchart,
     Piechart,
     Piechart1,
-    AccountChart1
+    AccountChart1,
+    Piechart3
   },
   data () {
     return {

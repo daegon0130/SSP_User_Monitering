@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-radio-group v-model = "radio" mandatory>
+    <v-radio-group row v-model = "radio" mandatory>
       <v-radio
         label="전체보기"
         value="2"/>
@@ -37,7 +37,8 @@ export default {
     return {
       datacollection: null,
       radio: null,
-      realdata: {}
+      realdata: {},
+      loaded: false
     }
   },
   mounted () {
@@ -228,6 +229,9 @@ export default {
       if (this.timeLength === 'hour') {
         const res = await axios.post('http://localhost:3000/api/v/pv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
+        if (res) {
+          this.loaded = true
+        }
       } else {
         const res = await axios.post('http://localhost:3000/api/v/pv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data

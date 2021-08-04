@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "chart.heatmap.js": "0.0.1-alpha",
     "chart.js": "^2.9.4",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",

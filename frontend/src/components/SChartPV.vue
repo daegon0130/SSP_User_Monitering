@@ -40,7 +40,8 @@ export default {
               display: true,
               labelString: '기간'
             },
-            stacked: true
+            stacked: true,
+            offset: true
           }
         ],
         yAxes: [
@@ -51,7 +52,10 @@ export default {
             },
             stacked: true
           }
-        ]
+        ],
+        y: {
+          beginatZero: true
+        }
       }
     }
   }),
