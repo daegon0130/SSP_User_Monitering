@@ -6,7 +6,7 @@ const schedule = require('node-schedule');
 const User = require('../models/usr_user');
 const UserLog = require('../models/user_log');
 
-let user_grp_domain, user_org_id_domain, page_domain;
+let user_org_id_domain;
 
 const get_domain  = (async ()=>{
     user_org_id_domain = (async ()=>{
@@ -169,7 +169,8 @@ router.post('/trends', async (req, res, next)=>{
                             [Op.gte]: startDate
                         },
                     },
-                    raw: true
+                    raw: true,
+                    order: sequelize.col('time'),
                 });
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
@@ -183,7 +184,7 @@ router.post('/trends', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", MAX(total_num) AS "all" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7;', 
+                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", MAX(total_num) AS "all" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7 ORDER BY time;', 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -215,6 +216,7 @@ router.post('/trends', async (req, res, next)=>{
                         ]
                     },
                     group: [sequelize.fn('date_format', sequelize.col('time'), '%Y%m')],
+                    order: sequelize.col('time'),
                     raw: true
                 });
             }else{
@@ -249,6 +251,7 @@ router.post('/trends', async (req, res, next)=>{
                                 },
                     },
                     group: [sequelize.fn('date_format', sequelize.col('time'), '%Y%m%d')],
+                    order: sequelize.col('time'),
                     raw: true
                 });
             } else if (timeUnit === "week"){
@@ -263,7 +266,7 @@ router.post('/trends', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", MAX(adm) AS "1", MAX(aff) AS "2", MAX(opr) AS "3", MAX(etc) AS "4" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7;', 
+                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", MAX(adm) AS "1", MAX(aff) AS "2", MAX(opr) AS "3", MAX(etc) AS "4" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7 ORDER BY time;', 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -298,6 +301,7 @@ router.post('/trends', async (req, res, next)=>{
                         ]
                     },
                     group: [sequelize.fn('date_format', sequelize.col('time'), '%Y%m')],
+                    order: sequelize.col('time'),
                     raw: true
                 });
             }else{
@@ -327,6 +331,7 @@ router.post('/trends', async (req, res, next)=>{
                             [Op.gt]: startDate
                         },
                     },
+                    order: sequelize.col('time'),
                     raw: true
                 });
             } else if (timeUnit === "week"){
@@ -411,7 +416,8 @@ router.post('/trends', async (req, res, next)=>{
                             [Op.gt]: startDate
                         },
                     },
-                    raw: true
+                    raw: true,
+                    order: sequelize.col('time'),
                 });
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
