@@ -2,13 +2,15 @@
   <div>
     <v-radio-group row v-model = "radio" mandatory>
       <v-radio
+        v-on:click="getData(); fillData()"
         label="전체보기"
         value="2"/>
       <v-radio
+        v-on:click="getData(); fillData()"
         label="그룹별 보기"
         value="3"/>
     </v-radio-group>
-    <v-btn v-on:click="getData(); fillData() ">
+    <v-btn v-if="show" v-on:click="getData(); fillData() ">
       조회
     </v-btn>
     <StackedChartPV v-if="radio === '2'" :chart-data="datacollection" :timeLength="this.timeLength" />
@@ -27,7 +29,8 @@ export default {
     date2: String,
     time1: String,
     time2: String,
-    timeLength: String
+    timeLength: String,
+    show: Boolean
   },
   components: {
     StackedChartPV,
