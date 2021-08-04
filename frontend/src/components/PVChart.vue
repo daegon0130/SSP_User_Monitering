@@ -10,17 +10,17 @@
         label="그룹별 보기"
         value="3"/>
     </v-radio-group>
-    <v-btn v-if="show" v-on:click="getData(); fillData() ">
+    <v-btn v-if="show" v-on:click="getData(); fillData(); changetimelength() ">
       조회
     </v-btn>
-    <StackedChartPV v-if="radio === '2'" :chart-data="datacollection" :timeLength="this.timeLength" />
-    <LineChartPV v-else :chart-data="datacollection" :timeLength="this.timeLength" />
+    <StackedChartPV v-if="radio === '2'" :chart-data="datacollection" :timeLength="this.timeLength" :options="this.optionsstack" />
+    <line-chart v-if="radio === '3'" :chart-data="datacollection" :timeLength="this.timeLength" :options="this.optionsline" />
   </div>
 </template>
 
 <script>
 import axios from 'axios'
-import LineChartPV from './LineChartPV.vue'
+import LineChart from './LineChart.vue'
 import StackedChartPV from './SChartPV'
 
 export default {
@@ -34,14 +34,92 @@ export default {
   },
   components: {
     StackedChartPV,
-    LineChartPV
+    LineChart
   },
   data () {
     return {
       datacollection: null,
       radio: null,
       realdata: {},
-      loaded: false
+      loaded: false,
+      optionsline: {
+        title: {
+          display: true,
+          text: 'PV'
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [
+            {
+              type: 'time',
+              time: {
+                unit: 'day',
+                displayFormats: {
+                  hour: 'HH:mm',
+                  day: 'MM DD',
+                  week: 'MM DD',
+                  month: 'MM'
+                }
+              },
+              scaleLabel: {
+                display: true,
+                labelString: '기간'
+              }
+            }
+          ],
+          yAxes: [
+            {
+              scaleLabel: {
+                display: true,
+                labelString: 'Page Views'
+              }
+            }
+          ]
+        }
+      },
+      optionsstack: {
+        title: {
+          display: true,
+          text: 'PV'
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [
+            {
+              type: 'time',
+              time: {
+                unit: 'day',
+                displayFormats: {
+                  hour: 'HH:mm',
+                  day: 'MM/DD',
+                  week: 'MM DD',
+                  month: 'MM'
+                }
+              },
+              scaleLabel: {
+                display: true,
+                labelString: '기간'
+              },
+              stacked: true,
+              offset: true
+            }
+          ],
+          yAxes: [
+            {
+              scaleLabel: {
+                display: true,
+                labelString: 'Page Views'
+              },
+              stacked: true
+            }
+          ],
+          y: {
+            beginatZero: true
+          }
+        }
+      }
     }
   },
   mounted () {
@@ -237,6 +315,13 @@ export default {
         const res = await axios.post('http://localhost:3000/api/v/pv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
         this.fillData()
+      }
+    },
+    changetimelength () {
+      if (this.radio === '2') {
+        this.optionsstack.scales.xAxes[0].time.unit = this.timeLength
+      } else if (this.radio === '3') {
+        this.optionsline.scales.xAxes[0].time.unit = this.timeLength
       }
     }
   },

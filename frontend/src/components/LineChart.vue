@@ -19,8 +19,8 @@ export default {
     options: {
       handler (newOption, oldOption) {
         this.$data._chart.destroy()
+        console.log('destroyed')
         this.renderChart(this.chartData, this.options)
-        this.$data._chart.update()
       },
       deep: true
     }

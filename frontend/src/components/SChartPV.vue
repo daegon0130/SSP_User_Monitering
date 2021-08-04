@@ -5,59 +5,15 @@ const { reactiveProp } = mixins
 export default {
   extends: Bar,
   mixins: [reactiveProp],
-  props: {
-    date: String,
-    date2: String,
-    timeLength: String
-  },
+  props: [
+    'chartData',
+    'options',
+    {
+      date: String,
+      date2: String,
+      timeLength: String
+    }],
   data: () => ({
-    options: {
-      title: {
-        display: true,
-        text: 'PV'
-      },
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        xAxes: [
-          {
-            type: 'time',
-            time: {
-              unit: 'day',
-              displayFormats: {
-                millisecond: 'MMM DD',
-                second: 'MMM DD',
-                minute: 'MMM DD',
-                hour: 'MMM DD',
-                day: 'MMM DD',
-                wee: 'MMM DD',
-                month: 'MMM DD',
-                quarter: 'MMM DD',
-                year: 'MMM DD'
-              }
-            },
-            scaleLabel: {
-              display: true,
-              labelString: '기간'
-            },
-            stacked: true,
-            offset: true
-          }
-        ],
-        yAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: 'Page Views'
-            },
-            stacked: true
-          }
-        ],
-        y: {
-          beginatZero: true
-        }
-      }
-    }
   }),
   mounted () {
     this.renderChart(this.chartData, this.options)

@@ -14,15 +14,15 @@
         label="제휴사별 보기"
         value="3"/>
     </v-radio-group>
-    <v-btn v-if="this.show" v-on:click="getData(); fillData() ">
+    <v-btn v-if="this.show" v-on:click="getData(); fillData(); changetimelength()">
       조회
     </v-btn>
-    <line-chart-account :chart-data="datacollection" :timeLength="this.timeLength" />
+    <line-chart :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
   </div>
 </template>
 
 <script>
-import LineChartAccount from './LineChartAccount.vue'
+import LineChart from './LineChart.vue'
 import axios from 'axios'
 
 export default {
@@ -35,13 +35,49 @@ export default {
     show: Boolean
   },
   components: {
-    LineChartAccount
+    LineChart
   },
   data () {
     return {
       datacollection: null,
       radio: null,
-      realdata: {}
+      realdata: {},
+      options: {
+        title: {
+          display: true,
+          text: 'Account Number'
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [
+            {
+              type: 'time',
+              time: {
+                unit: this.timeLength,
+                displayFormats: {
+                  hour: 'HH:mm',
+                  day: 'MMM DD',
+                  week: 'MM DD',
+                  month: 'MMM'
+                }
+              },
+              scaleLabel: {
+                display: true,
+                labelString: '기간'
+              }
+            }
+          ],
+          yAxes: [
+            {
+              scaleLabel: {
+                display: true,
+                labelString: 'Number of Accounts'
+              }
+            }
+          ]
+        }
+      }
     }
   },
   mounted () {
@@ -165,6 +201,9 @@ export default {
         this.realdata = res.data
         this.fillData()
       }
+    },
+    changetimelength () {
+      this.options.scales.xAxes[0].time.unit = this.timeLength
     }
   },
   computed: {

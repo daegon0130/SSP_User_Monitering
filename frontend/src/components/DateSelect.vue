@@ -5,8 +5,29 @@
         cols="2"
     >
     <v-select
+        v-if="this.datetype === 'uv'"
         v-model="timelength"
-        :items="items"
+        :items="itemsuv"
+        item-text="dis"
+        item-value="key"
+        label="기간"
+        outlined
+        v-on:change="sendTimeLength(); changedate(); sendDate()"
+    ></v-select>
+    <v-select
+        v-if="this.datetype === 'pv'"
+        v-model="timelength"
+        :items="itemspv"
+        item-text="dis"
+        item-value="key"
+        label="기간"
+        outlined
+        v-on:change="sendTimeLength(); changedate(); sendDate()"
+    ></v-select>
+    <v-select
+        v-if="this.datetype === 'acc'"
+        v-model="timelength"
+        :items="itemsacc"
         item-text="dis"
         item-value="key"
         label="기간"
@@ -161,6 +182,9 @@
 
 <script>
 export default {
+  props: {
+    datetype: String
+  },
   data: () => ({
     date: (new Date((Date.now() - 2036800000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     date2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -172,8 +196,17 @@ export default {
     time2: '24:00',
     menu3: false,
     menu4: false,
-    items: [
+    itemsuv: [
       { dis: '시간', key: 'hour' },
+      { dis: '일', key: 'day' },
+      { dis: '주', key: 'week' },
+      { dis: '월', key: 'month' }
+    ],
+    itemspv: [
+      { dis: '일', key: 'day' },
+      { dis: '주', key: 'week' }
+    ],
+    itemsacc: [
       { dis: '일', key: 'day' },
       { dis: '주', key: 'week' },
       { dis: '월', key: 'month' }

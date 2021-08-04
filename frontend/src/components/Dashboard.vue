@@ -7,7 +7,6 @@
         <v-flex xs6>
           <div>실시간 활성 사용자</div>
       <v-container>
-        <v-container>
         <v-radio-group row v-model="radios3" mandatory>
           <v-radio
           label= "그룹별 UV 구성비율"
@@ -20,7 +19,6 @@
           <Piechart v-if="radios3 === '1'"/>
           <Piechart1 v-if="radios3 === '2'"/>
         </v-radio-group>
-      </v-container>
       </v-container>
         </v-flex>
       <v-flex xs6>
@@ -41,9 +39,6 @@
         </v-flex>
       </v-layout>
     </v-container>
-    <v-container>
-      <piechart-3/>
-    </v-container>
   </div>
   </v-app>
 </template>
@@ -51,7 +46,7 @@
 <script>
 import Piechart from './Piechart.vue'
 import Piechart1 from './Piechart1.vue'
-import Piechart3 from './Piechart3.vue'
+// import Piechart3 from './Piechart3.vue'
 import PVChart from './PVChart.vue'
 import AccountChart from './AccountChart.vue'
 import UVChart from './UVChart.vue'
@@ -62,7 +57,7 @@ export default {
   components: {
     Piechart,
     Piechart1,
-    Piechart3,
+    // Piechart3,
     PVChart,
     AccountChart,
     UVChart

@@ -14,10 +14,10 @@
         label="제휴사별 보기"
         value="3"/>
     </v-radio-group>
-    <v-btn v-if="this.show" v-on:click="getData(); fillData() ">
+    <v-btn v-if="this.show" v-on:click="getData(); fillData(); changetimelength() ">
       조회
     </v-btn>
-    <line-chart v-if="this.loaded" :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
+    <line-chart :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
   </div>
 </template>
 
@@ -42,7 +42,6 @@ export default {
       datacollection: null,
       radio: null,
       realdata: {},
-      loaded: false,
       options: {
         title: {
           display: true,
@@ -200,9 +199,11 @@ export default {
         console.log(this.date, this.date2, this.timeLength, this.radio)
         const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
-        this.loaded = true
         this.fillData()
       }
+    },
+    changetimelength () {
+      this.options.scales.xAxes[0].time.unit = this.timeLength
     }
   },
   computed: {
