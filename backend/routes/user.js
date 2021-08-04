@@ -394,6 +394,81 @@ router.post('/trends', async (req, res, next)=>{
                 result: "success",
                 elements: trends
             });*/
+        } else if(group === 3){
+            console.log(startDate, endDate);
+            if (timeUnit === "day"){
+                let lastDate = new Date(endDate);
+                lastDate.setDate(lastDate.getDate()+1);
+                const modEndDate = lastDate.toISOString().split('T')[0];
+                trends = await UserLog.findAll({
+                    attributes : [
+                        [sequelize.fn('date_format', sequelize.col('time'), '%Y-%m-%d'), 'time'],
+                        ['aff_list', 'all'],
+                    ],
+                    where: {
+                        time :  {
+                            [Op.lt]: modEndDate,
+                            [Op.gt]: startDate
+                        },
+                    },
+                    raw: true
+                });
+            } else if (timeUnit === "week"){
+                let lastDate = new Date(endDate);
+                const lastDay = lastDate.getDate();
+                const dayOfTheWeek = lastDate.getDay();
+                const newEndDate = lastDate.setDate(lastDay - dayOfTheWeek + 7);
+                const modEndDate=new Date(newEndDate).toISOString().split('T')[0];
+
+                let firstDate = new Date(startDate);
+                const firstDay = firstDate.getDate();
+                const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
+                const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
+                console.log(modStartDate, modEndDate)
+                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", aff_list AS "all" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7 ORDER BY time;', 
+                { 
+                    replacements: { startDate: modStartDate, endDate: modEndDate},
+                    type: QueryTypes.SELECT
+                });
+            } else if (timeUnit === "month"){
+                let newEndDate = new Date(endDate);
+                newEndDate.setMonth(newEndDate.getMonth() + 1);
+                newEndDate = newEndDate.toISOString().split('T')[0];
+                let modEndDate = newEndDate.slice(0, 7)+"-01";
+                let modStartDate = startDate.slice(0, 7)+ "-01";
+
+                console.log(endDate);
+                console.log(modStartDate);
+                console.log(modEndDate);
+                trends = await UserLog.findAll({
+                    attributes : [
+                        [sequelize.fn('date_format', sequelize.col('time'), '%Y-%m'), 'time'],
+                        ['aff_list', 'all'],
+                    ],
+                    where: {
+                        [Op.and]:[
+                            {   
+                                time :  {
+                                [Op.lt]: modEndDate,
+                                [Op.gte]: modStartDate
+                                }
+                            }
+                            //sequelize.where(sequelize.fn('date_format', sequelize.col('time'), '%d'),1)
+                        ]
+                    },
+                    group: [sequelize.fn('date_format', sequelize.col('time'), '%Y%m')],
+                    order: sequelize.col('time'),
+                    raw: true
+                });
+            }else{
+                res.json({
+                    "result": "fail",
+                    "errMessage": "'timeUnit' parameter for trends has value from {hour, day, week, month}"
+                });
+            }
+            trends = groupBy(trends, 'all');
+            console.log(trends);
+            res.json(trends);
         }
         else{
             res.json({

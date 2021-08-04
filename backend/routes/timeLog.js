@@ -20,7 +20,7 @@ const get_domain  = (async ()=>{
         console.log(res);
         return res;
     })();
-    user_org_id_domain = (async ()=>{
+    user_org_id_domain = await (async ()=>{
         const result = await sequelize.query('SELECT DISTINCT(user_org_id) FROM usr_user', 
                     { 
                         type: QueryTypes.SELECT
@@ -58,6 +58,7 @@ const groupBy = function (data, key, grp) {
                     carry[group][ele] = 0;
                 }
             }else if (grp==='user_org_id'){
+                console.log(user_org_id_domain);
                 for (let ele of user_org_id_domain){
                     carry[group][ele] = 0;
                 }
@@ -82,12 +83,12 @@ router.post('/uv', async (req, res, next)=>{
         if (group === 1){
             console.log(startDate, endDate);
             if (timeUnit === "hour"){
-                let lastDate = new Date(endDate);
-                lastDate.setDate(lastDate.getDate()+1);
-                const modEndDate = lastDate.toISOString().split('T')[0];
+                //let lastDate = new Date(endDate);
+                //lastDate.setDate(lastDate.getDate()+1);
+                //const modEndDate = lastDate.toISOString().split('T')[0];
                 uv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, COUNT(DISTINCT(user_id)) AS "all" FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d"), DATE_FORMAT(asc_time, "%H") ORDER BY time;', 
                 { 
-                    replacements: { startDate: startDate, endDate: modEndDate},
+                    replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
                 });
             } else if (timeUnit === "day"){
@@ -163,12 +164,12 @@ router.post('/uv', async (req, res, next)=>{
             console.log(startDate, endDate);
             
             if (timeUnit === "hour"){
-                let lastDate = new Date(endDate);
-                lastDate.setDate(lastDate.getDate()+1);
-                const modEndDate = lastDate.toISOString().split('T')[0];
+                //let lastDate = new Date(endDate);
+                //lastDate.setDate(lastDate.getDate()+1);
+                //const modEndDate = lastDate.toISOString().split('T')[0];
                 uv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE asc_time > :startDate AND asc_time < :endDate GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d"), DATE_FORMAT(asc_time, "%H"), user_grp ORDER BY time, user_grp;', 
                 { 
-                    replacements: { startDate: startDate, endDate: modEndDate},
+                    replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
                 });
             } else if (timeUnit === "day"){
@@ -239,12 +240,12 @@ router.post('/uv', async (req, res, next)=>{
             console.log(startDate, endDate);
             
             if (timeUnit === "hour"){
-                let lastDate = new Date(endDate);
-                lastDate.setDate(lastDate.getDate()+1);
-                const modEndDate = lastDate.toISOString().split('T')[0];
+                // let lastDate = new Date(endDate);
+                // lastDate.setDate(lastDate.getDate()+1);
+                // const modEndDate = lastDate.toISOString().split('T')[0];
                 uv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, user_org_id, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE asc_time > :startDate AND asc_time < :endDate GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d"), DATE_FORMAT(asc_time, "%H"), user_org_id ORDER BY time, user_org_id;', 
                 { 
-                    replacements: { startDate: startDate, endDate: modEndDate},
+                    replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
                 });
             } else if (timeUnit === "day"){
@@ -294,8 +295,6 @@ router.post('/uv', async (req, res, next)=>{
                     "errMessage": "'timeUnit' parameter for uv has value from {hour, day, week, month}"
                 });
             }
-            
-            console.log(uv.length);
             uv = groupBy(uv,'time', 'user_org_id');
             console.log(uv);
             res.json(uv);
@@ -334,12 +333,12 @@ router.post('/pv', async (req, res, next)=>{
         if (group === 1){
             console.log(startDate, endDate);
             if (timeUnit === "hour"){
-                let lastDate = new Date(endDate);
-                lastDate.setDate(lastDate.getDate()+1);
-                const modEndDate = lastDate.toISOString().split('T')[0];
+                //let lastDate = new Date(endDate);
+                //lastDate.setDate(lastDate.getDate()+1);
+                //const modEndDate = lastDate.toISOString().split('T')[0];
                 pv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.id<A.id AND B.user_id= A.user_id AND B.asc_time >(A.asc_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d"), DATE_FORMAT(asc_time, "%H") ORDER BY time;', 
                 { 
-                    replacements: { startDate: startDate, endDate: modEndDate},
+                    replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
                 });
             } else if (timeUnit === "day"){
@@ -399,12 +398,12 @@ router.post('/pv', async (req, res, next)=>{
         console.log(startDate, endDate);
         
             if (timeUnit === "hour"){
-                let lastDate = new Date(endDate);
-                lastDate.setDate(lastDate.getDate()+1);
-                const modEndDate = lastDate.toISOString().split('T')[0];
+                //let lastDate = new Date(endDate);
+                //lastDate.setDate(lastDate.getDate()+1);
+                //const modEndDate = lastDate.toISOString().split('T')[0];
                 pv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, page, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.id<A.id AND B.user_id= A.user_id AND B.asc_time >(A.asc_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d"), DATE_FORMAT(asc_time, "%H"), page ORDER BY time, page;', 
                 { 
-                    replacements: { startDate: startDate, endDate: modEndDate},
+                    replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
                 });
             } else if (timeUnit === "day"){
@@ -464,12 +463,12 @@ router.post('/pv', async (req, res, next)=>{
             console.log(startDate, endDate);
             
             if (timeUnit === "hour"){
-                let lastDate = new Date(endDate);
-                lastDate.setDate(lastDate.getDate()+1);
-                const modEndDate = lastDate.toISOString().split('T')[0];
+                //let lastDate = new Date(endDate);
+                //lastDate.setDate(lastDate.getDate()+1);
+                //const modEndDate = lastDate.toISOString().split('T')[0];
                 pv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, user_grp, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.id<A.id AND B.user_id= A.user_id AND B.asc_time >(A.asc_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d"), DATE_FORMAT(asc_time, "%H"), user_grp ORDER BY time, user_grp;', 
                 { 
-                    replacements: { startDate: startDate, endDate: modEndDate},
+                    replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
                 });
             } else if (timeUnit === "day"){
@@ -529,12 +528,12 @@ router.post('/pv', async (req, res, next)=>{
             console.log(startDate, endDate);
             
             if (timeUnit === "hour"){
-                let lastDate = new Date(endDate);
-                lastDate.setDate(lastDate.getDate()+1);
-                const modEndDate = lastDate.toISOString().split('T')[0];
+                //let lastDate = new Date(endDate);
+                //lastDate.setDate(lastDate.getDate()+1);
+                //const modEndDate = lastDate.toISOString().split('T')[0];
                 pv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, user_org_id, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.id<A.id AND B.user_id= A.user_id AND B.asc_time >(A.asc_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d"), DATE_FORMAT(asc_time, "%H"), user_org_id ORDER BY time, user_org_id;', 
                 { 
-                    replacements: { startDate: startDate, endDate: modEndDate},
+                    replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
                 });
             } else if (timeUnit === "day"){
