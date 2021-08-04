@@ -363,7 +363,7 @@ router.post('/pv', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                pv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(asc_time, :startDate) DIV 7) WEEK) AS time, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.id<A.id AND B.user_id= A.user_id AND B.asc_time >(A.asc_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATEDIFF(asc_time, :startDate) DIV 7 ORDER BY time;', 
+                pv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(asc_time, :startDate) DIV 7) WEEK) AS time, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A WHERE NOT ( SELECT B.page FROM (SELECT * FROM time_log WHERE asc_time > :startDate - INTERVAL 10 MINUTE AND asc_time < :endDate) AS B WHERE B.asc_time<A.asc_time AND B.user_id= A.user_id ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATEDIFF(asc_time, :startDate) DIV 7 ORDER BY time;',
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -378,7 +378,9 @@ router.post('/pv', async (req, res, next)=>{
                 console.log(endDate);
                 console.log(modStartDate);
                 console.log(modEndDate);
-                pv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m") AS time, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A WHERE NOT ( SELECT B.page FROM (SELECT * FROM time_log WHERE asc_time > :startDate - INTERVAL 10 MINUTE AND asc_time < :endDate) AS B WHERE B.asc_time<A.asc_time AND B.user_id= A.user_id ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(asc_time, "%Y%m") ORDER BY time;',
+                pv= await sequelize.query(//'SELECT DATE_FORMAT(asc_time, "%Y-%m") AS time, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.user_id= A.user_id AND B.asc_time<A.asc_time ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(asc_time, "%Y-%m") ORDER BY time;',
+                    'SELECT DATE_FORMAT(asc_time, "%Y-%m") AS time, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A WHERE NOT ( SELECT B.page FROM (SELECT * FROM time_log WHERE asc_time > :startDate - INTERVAL 10 MINUTE AND asc_time < :endDate) AS B WHERE B.asc_time<A.asc_time AND B.user_id= A.user_id ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(asc_time, "%Y%m") ORDER BY time;',
+                    //'SELECT DATE_FORMAT(asc_time, "%Y-%m") AS time, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A WHERE NOT ( SELECT B.page FROM (SELECT * FROM time_log WHERE asc_time < A.asc_time) AS B WHERE B.user_id= A.user_id ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(asc_time, "%Y%m") ORDER BY time;',
                 {                           
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -426,7 +428,7 @@ router.post('/pv', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                pv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(asc_time, :startDate) DIV 7) WEEK) AS time, page, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.id<A.id AND B.user_id= A.user_id AND B.asc_time >(A.asc_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATEDIFF(asc_time, :startDate) DIV 7, page ORDER BY time, page;', 
+                pv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(asc_time, :startDate) DIV 7) WEEK) AS time, page, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.asc_time < A.asc_time AND B.user_id= A.user_id ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATEDIFF(asc_time, :startDate) DIV 7, page ORDER BY time, page;', 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT

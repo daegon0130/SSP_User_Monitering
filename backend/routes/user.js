@@ -20,17 +20,6 @@ const get_domain  = (async ()=>{
         }
         return res;
     })();
-    page_domain = await (async ()=>{
-        const result = await sequelize.query('SELECT DISTINCT(page) FROM time_log', 
-                    { 
-                        type: QueryTypes.SELECT
-                    });
-        let res = [];
-        for (let el of result){
-            res.push(el.page);
-        }
-        return res;
-    })();
 })();
 
 // groupby function
@@ -194,7 +183,7 @@ router.post('/trends', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", total_num AS "all" FROM user_log WHERE time > :startDate AND time < :endDate AND DAYOFWEEK(time) = 1;', 
+                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", MAX(total_num) AS "all" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7;', 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -212,7 +201,7 @@ router.post('/trends', async (req, res, next)=>{
                 trends = await UserLog.findAll({
                     attributes : [
                         [sequelize.fn('date_format', sequelize.col('time'), '%Y-%m'), 'time'],
-                        [sequelize.col('total_num'), 'all'],
+                        [sequelize.fn('max',sequelize.col('total_num')), 'all'],
                     ],
                     where: {
                         [Op.and]:[
@@ -223,9 +212,9 @@ router.post('/trends', async (req, res, next)=>{
                                 //[Op.between]: [startDate, modEndDate]
                                 },
                             },
-                            sequelize.where(sequelize.fn('date_format', sequelize.col('time'), '%d'),1)
                         ]
                     },
+                    group: [sequelize.fn('date_format', sequelize.col('time'), '%Y%m')],
                     raw: true
                 });
             }else{
@@ -247,7 +236,10 @@ router.post('/trends', async (req, res, next)=>{
                 trends = await UserLog.findAll({
                     attributes : [
                         [sequelize.fn('date_format', sequelize.col('time'), '%Y-%m-%d'), 'time'],
-                        ['adm', '1'], ['aff', '2'], ['opr', '3'], ['etc', '4'],
+                        [sequelize.fn('max',sequelize.col('adm')), '1'],
+                        [sequelize.fn('max',sequelize.col('aff')), '2'],
+                        [sequelize.fn('max',sequelize.col('opr')), '3'],
+                        [sequelize.fn('max',sequelize.col('etc')), '4'],
                     ],
                     where: {
                                 time :  {
@@ -256,6 +248,7 @@ router.post('/trends', async (req, res, next)=>{
                                 //[Op.between]: [startDate, modEndDate]
                                 },
                     },
+                    group: [sequelize.fn('date_format', sequelize.col('time'), '%Y%m%d')],
                     raw: true
                 });
             } else if (timeUnit === "week"){
@@ -270,7 +263,7 @@ router.post('/trends', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", adm AS "1", aff AS "2", opr AS "3", etc AS "4" FROM user_log WHERE time > :startDate AND time < :endDate AND DAYOFWEEK(time) = 1;', 
+                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", MAX(adm) AS "1", MAX(aff) AS "2", MAX(opr) AS "3", MAX(etc) AS "4" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7;', 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -285,10 +278,27 @@ router.post('/trends', async (req, res, next)=>{
                 console.log(endDate);
                 console.log(modStartDate);
                 console.log(modEndDate);
-                trends= await sequelize.query('SELECT DATE_FORMAT(time, "%Y-%m-%d") AS "time", adm AS "1", aff AS "2", opr AS "3", etc AS "4" FROM user_log WHERE time > :startDate AND time < :endDate AND DATE_FORMAT(time, "%d") = 1;', 
-                { 
-                    replacements: { startDate: modStartDate, endDate: modEndDate},
-                    type: QueryTypes.SELECT
+                trends = await UserLog.findAll({
+                    attributes : [
+                        [sequelize.fn('date_format', sequelize.col('time'), '%Y-%m'), 'time'],
+                        [sequelize.fn('max',sequelize.col('adm')), '1'],
+                        [sequelize.fn('max',sequelize.col('aff')), '2'],
+                        [sequelize.fn('max',sequelize.col('opr')), '3'],
+                        [sequelize.fn('max',sequelize.col('etc')), '4'],
+                    ],
+                    where: {
+                        [Op.and]:[
+                            {
+                                time :  {
+                                [Op.lt]: modEndDate,
+                                [Op.gt]: startDate
+                                //[Op.between]: [startDate, modEndDate]
+                                },
+                            },
+                        ]
+                    },
+                    group: [sequelize.fn('date_format', sequelize.col('time'), '%Y%m')],
+                    raw: true
                 });
             }else{
                 res.json({
@@ -298,16 +308,7 @@ router.post('/trends', async (req, res, next)=>{
             }
             console.log(trends);
             res.json(trends);
-            /*
-            console.log({
-                result: "success",
-                elements: trends
-            });
-            res.json({
-                result: "success",
-                elements: trends
-            });*/
-
+            
         // group by 제휴사 
         } else if(group === 3){
             console.log(startDate, endDate);
@@ -340,7 +341,7 @@ router.post('/trends', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", aff_list AS "all" FROM user_log WHERE time > :startDate AND time < :endDate  AND DAYOFWEEK(time) = 1;', 
+                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", aff_list AS "all" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7 ORDER BY time;', 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -367,10 +368,12 @@ router.post('/trends', async (req, res, next)=>{
                                 [Op.lt]: modEndDate,
                                 [Op.gte]: modStartDate
                                 }
-                            },
-                            sequelize.where(sequelize.fn('date_format', sequelize.col('time'), '%d'),1)
+                            }
+                            //sequelize.where(sequelize.fn('date_format', sequelize.col('time'), '%d'),1)
                         ]
                     },
+                    group: [sequelize.fn('date_format', sequelize.col('time'), '%Y%m')],
+                    order: sequelize.col('time'),
                     raw: true
                 });
             }else{
