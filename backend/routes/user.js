@@ -105,6 +105,7 @@ const router = express.Router();
 
 router.get('/', async (req, res, next)=>{
     try{
+        // 사용자 그룹별 옵션
         //let groups= await sequelize.query('SELECT user_grp AS grp, COUNT(user_id) AS cnt FROM usr_user GROUP BY user_grp;', { type: QueryTypes.SELECT });
         let groups = await User.findAll({
             attributes : [
@@ -118,7 +119,21 @@ router.get('/', async (req, res, next)=>{
         for(let i=0; i<groups.length; i++){
             group[groups[i].grp] = groups[i].cnt;
         }
-        console.log(group);
+
+        // 제휴사별 옵션
+        //let groups= await sequelize.query('SELECT user_grp AS grp, COUNT(user_id) AS cnt FROM usr_user GROUP BY user_grp;', { type: QueryTypes.SELECT });
+        let companies = await User.findAll({
+            attributes : [
+                ['user_org_id', 'org_id'],
+                [sequelize.fn('COUNT', sequelize.col('user_id')), 'cnt'],
+            ],
+            group : 'user_org_id',
+            raw: true
+        });
+        let company = {}
+        for(let i=0; i<companies.length; i++){
+            company[String(companies[i].org_id).padStart(7, '0')] = companies[i].cnt;
+        }
 
         // 현재 날짜로부터 90일전 날짜 구하기
         let today = new Date();
@@ -132,9 +147,16 @@ router.get('/', async (req, res, next)=>{
                 type: QueryTypes.SELECT,
             }
         );
+        console.log({
+            "result": "success",
+            "group" : group,
+            "company" : company,
+            "inactive_user": inactive_user,
+        });
         res.json({
             "result": "success",
             "group" : group,
+            "company" : company,
             "inactive_user": inactive_user,
         });
     } catch (err) {
@@ -225,8 +247,14 @@ router.post('/trends', async (req, res, next)=>{
                     "errMessage": "'timeUnit' parameter for trends has value from {hour, day, week, month}"
                 });
             }
-            console.log(trends);
-            res.json(trends);
+            console.log({
+                result: "success",
+                elements: trends
+            });
+            res.json({
+                result: "success",
+                elements: trends
+            });
             
         // group by 사용자 그룹
         } else if(group === 2){
@@ -310,8 +338,14 @@ router.post('/trends', async (req, res, next)=>{
                     "errMessage": "'timeUnit' parameter for trends has value from {hour, day, week, month}"
                 });
             }
-            console.log(trends);
-            res.json(trends);
+            console.log({
+                result: "success",
+                elements: trends
+            });
+            res.json({
+                result: "success",
+                elements: trends
+            });
             
         // group by 제휴사 
         } else if(group === 3){
@@ -388,9 +422,6 @@ router.post('/trends', async (req, res, next)=>{
                 });
             }
             trends = groupBy(trends, 'all');
-            console.log(trends);
-            res.json(trends);
-            /*
             console.log({
                 result: "success",
                 elements: trends
@@ -398,8 +429,10 @@ router.post('/trends', async (req, res, next)=>{
             res.json({
                 result: "success",
                 elements: trends
-            });*/
-        } else if(group === 3){
+            });
+
+        // 미접속 계정
+        } else if(group === 4){
             console.log(startDate, endDate);
             if (timeUnit === "day"){
                 let lastDate = new Date(endDate);
@@ -473,8 +506,14 @@ router.post('/trends', async (req, res, next)=>{
                 });
             }
             trends = groupBy(trends, 'all');
-            console.log(trends);
-            res.json(trends);
+            console.log({
+                result: "success",
+                elements: trends
+            });
+            res.json({
+                result: "success",
+                elements: trends
+            });
         }
         else{
             res.json({
@@ -491,5 +530,6 @@ router.post('/trends', async (req, res, next)=>{
         //next(err);
     }
 });
+
 
 module.exports = router;

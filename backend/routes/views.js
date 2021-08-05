@@ -80,7 +80,7 @@ const groupBy = function (data, key, grp) {
 // UV 라우터
 router.post('/uv', async (req, res, next)=>{
     try{
-        const { startDate, endDate, timeUnit, group }= req.body;
+        const { startDate, endDate, timeUnit, group, ratio }= req.body;
         let uv;
         // no grouping
         if (group === 1){
@@ -325,7 +325,7 @@ router.post('/uv', async (req, res, next)=>{
 // PV 라우터
 router.post('/pv', async (req, res, next)=>{
     try{
-        const { startDate, endDate, timeUnit, group }= req.body;
+        const { startDate, endDate, timeUnit, group, ratio }= req.body;
         let pv;
         // no grouping
         if (group === 1){
@@ -673,16 +673,12 @@ router.post('/realtime', async (req, res, next)=>{
         const { time }= req.body;
         let uv;
         console.log(time);
-        let startTime = new Date();
-        let endTime = new Date();
-        console.log(endTime);
-        startTime.setHours(endTime.getHours() - time);
-        startTime = startTime.toISOString().slice(0, 19).replace('T', ' ');
-        endTime = endTime.toISOString().slice(0, 19).replace('T', ' ');
+        let startTime = moment().subtract(time, 'hours').format('YYYY-MM-DD HH:mm:ss');
+        let endTime = moment().format('YYYY-MM-DD HH:mm:ss');
         console.log(startTime, endTime);
         if (time){
             console.log(time);
-            uv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, COUNT(DISTINCT(user_id)) AS "all" FROM time_log WHERE asc_time > :startTime AND asc_time < :endTime GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d %H") ORDER BY time;',
+            uv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, COUNT(DISTINCT(user_id)) AS "num" FROM time_log WHERE asc_time > :startTime AND asc_time < :endTime GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d %H") ORDER BY time;',
             {                           
                 replacements: { startTime : startTime, endTime: endTime },
                 type: QueryTypes.SELECT
@@ -705,7 +701,7 @@ router.post('/realtime', async (req, res, next)=>{
         console.log(err);
         res.json({
             "result": "fail",
-            "errMessage": err
+            "errMessage": "invalid 'time' parameter"
         });
         next(err);
     }
