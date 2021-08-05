@@ -87,8 +87,8 @@ export default {
   methods: {
     fillData () {
       if (this.radio === '1') {
-        var labels = this.realdata.map(function (e) { return e.time })
-        var data1 = this.realdata.map(function (e) { return Number(e.all) })
+        var labels = this.realdata.elements.map(function (e) { return e.time })
+        var data1 = this.realdata.elements.map(function (e) { return Number(e.all) })
         this.datacollection = {
           labels: labels,
           datasets: [
@@ -103,11 +103,11 @@ export default {
           ]
         }
       } else if (this.radio === '2') {
-        var labels1 = this.realdata.map(function (e) { return e.time })
-        var datagroup11 = this.realdata.map(function (e) { return Number(e['1']) })
-        var datagroup12 = this.realdata.map(function (e) { return Number(e['2']) })
-        var datagroup13 = this.realdata.map(function (e) { return Number(e['3']) })
-        var datagroup14 = this.realdata.map(function (e) { return Number(e['4']) })
+        var labels1 = this.realdata.elements.map(function (e) { return e.time })
+        var datagroup11 = this.realdata.elements.map(function (e) { return Number(e['1']) })
+        var datagroup12 = this.realdata.elements.map(function (e) { return Number(e['2']) })
+        var datagroup13 = this.realdata.elements.map(function (e) { return Number(e['3']) })
+        var datagroup14 = this.realdata.elements.map(function (e) { return Number(e['4']) })
         this.datacollection = {
           labels: labels1,
           datasets: [
@@ -146,11 +146,11 @@ export default {
           ]
         }
       } else if (this.radio === '3') {
-        var labels2 = this.realdata.map(function (e) { return e.time })
-        var datagroup21 = this.realdata.map(function (e) { return Number(e['0000001']) })
-        var datagroup22 = this.realdata.map(function (e) { return Number(e['0000002']) })
-        var datagroup23 = this.realdata.map(function (e) { return Number(e['0000003']) })
-        var datagroup24 = this.realdata.map(function (e) { return Number(e['0000004']) })
+        var labels2 = this.realdata.elements.map(function (e) { return e.time })
+        var datagroup21 = this.realdata.elements.map(function (e) { return Number(e['0000001']) })
+        var datagroup22 = this.realdata.elements.map(function (e) { return Number(e['0000002']) })
+        var datagroup23 = this.realdata.elements.map(function (e) { return Number(e['0000003']) })
+        var datagroup24 = this.realdata.elements.map(function (e) { return Number(e['0000004']) })
         this.datacollection = {
           labels: labels2,
           datasets: [

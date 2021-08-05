@@ -166,14 +166,14 @@ export default {
       } else if (this.radio === '3') {
         this.datacollection = {
           labels: [
-            'SK텔레콤(주)',
-            '11번가',
-            '콘텐츠웨이브',
-            '드림어스'
+            this.$store.getters.getById('0000001'),
+            this.$store.getters.getById('0000002'),
+            this.$store.getters.getById('0000003'),
+            this.$store.getters.getById('0000004')
           ],
           datasets: [{
             label: '사용자 분포',
-            data: [this.realdata.company['1'], this.realdata.company['2'], this.realdata.company['3'], this.realdata.company['4']],
+            data: [this.realdata.company['0000001'], this.realdata.company['0000002'], this.realdata.company['0000003'], this.realdata.company['0000004']],
             backgroundColor: [
               'rgb(255, 99, 132)',
               'rgb(54, 162, 235)',
