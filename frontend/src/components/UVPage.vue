@@ -6,6 +6,7 @@
       <UVChart :date="this.date" :date2="this.date2" :timeLength="this.timelength" :time1="this.time1" :time2="this.time2" :show=true />
     </v-container>
     </div>
+    <router-view></router-view>
   </v-app>
 </template>
 

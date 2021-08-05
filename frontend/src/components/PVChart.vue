@@ -15,6 +15,16 @@
     </v-btn>
     <StackedChartPV v-if="radio === '2'" :chart-data="datacollection" :timeLength="this.timeLength" :options="this.optionsstack" />
     <line-chart v-if="radio === '3'" :chart-data="datacollection" :timeLength="this.timeLength" :options="this.optionsline" />
+    <v-radio-group v-if="this.show" row v-model = "radio1" mandatory>
+      <v-radio
+        v-on:click="getData(); fillData()"
+        label="숫자보기"
+        value="1"/>
+      <v-radio
+        v-on:click="getData(); fillData()"
+        label="비율보기"
+        value="2"/>
+    </v-radio-group>
   </div>
 </template>
 
@@ -42,6 +52,7 @@ export default {
       radio: null,
       realdata: {},
       loaded: false,
+      radio1: null,
       optionsline: {
         title: {
           display: true,
@@ -129,8 +140,8 @@ export default {
   methods: {
     fillData () {
       if (this.radio === '1') {
-        var labels = this.realdata.map(function (e) { return e.time })
-        var data1 = this.realdata.map(function (e) { return Number(e.all) })
+        var labels = this.realdata.elements.map(function (e) { return e.time })
+        var data1 = this.realdata.elements.map(function (e) { return Number(e.all) })
         this.datacollection = {
           labels: labels,
           datasets: [
@@ -145,11 +156,11 @@ export default {
           ]
         }
       } else if (this.radio === '3') {
-        var labels1 = this.realdata.map(function (e) { return e.time })
-        var datagroup11 = this.realdata.map(function (e) { return Number(e['1']) })
-        var datagroup12 = this.realdata.map(function (e) { return Number(e['2']) })
-        var datagroup13 = this.realdata.map(function (e) { return Number(e['3']) })
-        var datagroup14 = this.realdata.map(function (e) { return Number(e['4']) })
+        var labels1 = this.realdata.elements.map(function (e) { return e.time })
+        var datagroup11 = this.realdata.elements.map(function (e) { return Number(e['1']) })
+        var datagroup12 = this.realdata.elements.map(function (e) { return Number(e['2']) })
+        var datagroup13 = this.realdata.elements.map(function (e) { return Number(e['3']) })
+        var datagroup14 = this.realdata.elements.map(function (e) { return Number(e['4']) })
         this.datacollection = {
           labels: labels1,
           datasets: [
@@ -188,11 +199,11 @@ export default {
           ]
         }
       } else if (this.radio === '4') {
-        var labels2 = this.realdata.map(function (e) { return e.time })
-        var datagroup21 = this.realdata.map(function (e) { return Number(e['1']) })
-        var datagroup22 = this.realdata.map(function (e) { return Number(e['2']) })
-        var datagroup23 = this.realdata.map(function (e) { return Number(e['3']) })
-        var datagroup24 = this.realdata.map(function (e) { return Number(e['4']) })
+        var labels2 = this.realdata.elements.map(function (e) { return e.time })
+        var datagroup21 = this.realdata.elements.map(function (e) { return Number(e['1']) })
+        var datagroup22 = this.realdata.elements.map(function (e) { return Number(e['2']) })
+        var datagroup23 = this.realdata.elements.map(function (e) { return Number(e['3']) })
+        var datagroup24 = this.realdata.elements.map(function (e) { return Number(e['4']) })
         this.datacollection = {
           labels: labels2,
           datasets: [
@@ -231,15 +242,15 @@ export default {
           ]
         }
       } else if (this.radio === '2') {
-        var labels3 = this.realdata.map(function (e) { return e.time })
-        var datagroup31 = this.realdata.map(function (e) { return Number(e.das) })
-        var datagroup32 = this.realdata.map(function (e) { return Number(e.cmc) })
-        var datagroup33 = this.realdata.map(function (e) { return Number(e.sal) })
+        var labels3 = this.realdata.elements.map(function (e) { return e.time })
+        var datagroup31 = this.realdata.elements.map(function (e) { return Number(e.das) })
+        var datagroup32 = this.realdata.elements.map(function (e) { return Number(e.cmc) })
+        var datagroup33 = this.realdata.elements.map(function (e) { return Number(e.sal) })
         // var datagroup34 = this.realdata.map(function (e) { return Number(e.ses) })
-        var datagroup35 = this.realdata.map(function (e) { return Number(e.cus) })
-        var datagroup36 = this.realdata.map(function (e) { return Number(e.sts) })
-        var datagroup37 = this.realdata.map(function (e) { return Number(e.cuc) })
-        var datagroup38 = this.realdata.map(function (e) { return Number(e.mkt) })
+        var datagroup35 = this.realdata.elements.map(function (e) { return Number(e.cus) })
+        var datagroup36 = this.realdata.elements.map(function (e) { return Number(e.sts) })
+        var datagroup37 = this.realdata.elements.map(function (e) { return Number(e.cuc) })
+        var datagroup38 = this.realdata.elements.map(function (e) { return Number(e.mkt) })
         this.datacollection = {
           labels: labels3,
           datasets: [

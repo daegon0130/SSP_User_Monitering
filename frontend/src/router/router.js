@@ -7,8 +7,13 @@ import AddClient from './../components/AddClient.vue'
 import UVPage from './../components/UVPage.vue'
 import PVPage from './../components/PVPage.vue'
 import Realtime from './../components/Realtime'
-import UserDistribution from './../components/UserDistribution'
+import UserDistribution from './../components/UserDistribution1'
 import Heatmap from './../components/Heatmap'
+import UVHome from './../components/UVHome'
+import UnusedAcc from './../components/UnusedAcc'
+import AccountHome from './../components/AccountHome'
+import PVHome from './../components/PVHome'
+import PVUnpop from './../components/PVUnpop'
 
 Vue.use(Router)
 
@@ -21,14 +26,14 @@ export default new Router({
       component: Dashboard
     },
     {
-      path: '/Realtime',
-      name: 'Realtime',
-      component: Realtime
-    },
-    {
       path: '/AccountPage',
       name: 'AccountPage',
-      component: AccountPage
+      component: AccountHome,
+      children: [
+        { path: '', component: AccountPage },
+        { path: 'distribution', component: UserDistribution },
+        { path: 'unused', component: UnusedAcc }
+      ]
     },
     {
       path: '/AddClient',
@@ -38,17 +43,20 @@ export default new Router({
     {
       path: '/UVPage',
       name: 'UVPage',
-      component: UVPage
+      component: UVHome,
+      children: [
+        { path: 'hourly', component: Realtime },
+        { path: '', component: UVPage }
+      ]
     },
     {
       path: '/PVPage',
       name: 'PVPage',
-      component: PVPage
-    },
-    {
-      path: '/UserDistribution',
-      name: 'UserDistribution',
-      component: UserDistribution
+      component: PVHome,
+      children: [
+        { path: '', component: PVPage },
+        { path: 'Unpopular', component: PVUnpop }
+      ]
     },
     {
       path: '/Heatmap',

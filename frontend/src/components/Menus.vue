@@ -72,8 +72,8 @@
 
 <script>
 
-import { mapState } from 'vuex';
-import _ from 'lodash';
+import { mapState } from 'vuex'
+import _ from 'lodash'
 
 export default {
   components: {
@@ -81,18 +81,18 @@ export default {
   data: () => ({
     drawer: null,
     color: 'success',
-    responsive: false,
+    responsive: false
   }),
   computed: _.extend(
-    mapState(["menus", "colors"]),
+    mapState(['menus', 'colors'])
   ),
-  mounted(){
+  mounted () {
     this.onResponsiveInverted()
     window.addEventListener('resize', this.onResponsiveInverted)
   },
   methods: {
-    movePage(target){
-      this.$router.push({ name: target });
+    movePage (target) {
+      this.$router.push({ name: target })
     },
     onResponsiveInverted () {
       if (window.innerWidth < 1000) {
@@ -100,8 +100,8 @@ export default {
       } else {
         this.responsive = false
       }
-    },
-  },
+    }
+  }
 }
 </script>
 

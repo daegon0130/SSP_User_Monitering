@@ -3,14 +3,11 @@
 <v-app>
   <div id="app">
     <v-container>
+      <menus/>
       <v-layout>
         <v-flex xs6>
-          <div>희원 모니터</div>
-          <account-chart :date="this.date" :date2="this.date2" :time1="this.time1" :time2="this.time2" :timeLength="this.timelength" :show=false />
-        </v-flex>
-      <v-flex xs6>
-        <div>미접속 계정</div>
-        <v-container>
+          <div>실시간 활성 사용자</div>
+      <v-container>
         <v-radio-group row v-model="radios3" mandatory>
           <v-radio
           label= "그룹별 UV 구성비율"
@@ -24,6 +21,10 @@
           <Piechart1 v-if="radios3 === '2'"/>
         </v-radio-group>
       </v-container>
+        </v-flex>
+      <v-flex xs6>
+        <div>희원 모니터</div>
+        <account-chart :date="this.date" :date2="this.date2" :time1="this.time1" :time2="this.time2" :timeLength="this.timelength" :show=false />
       </v-flex>
       </v-layout>
       <v-layout>
@@ -50,6 +51,7 @@ import Piechart1 from './Piechart1.vue'
 import PVChart from './PVChart.vue'
 import AccountChart from './AccountChart.vue'
 import UVChart from './UVChart.vue'
+import Menus from './Menus.vue'
 
 export default {
   name: 'App',
@@ -59,7 +61,8 @@ export default {
     // Piechart3,
     PVChart,
     AccountChart,
-    UVChart
+    UVChart,
+    Menus
   },
   data () {
     return {

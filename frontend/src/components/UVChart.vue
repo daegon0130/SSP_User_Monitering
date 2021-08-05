@@ -18,6 +18,16 @@
       조회
     </v-btn>
     <line-chart :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
+    <v-radio-group v-if="this.show" row v-model = "radio1" mandatory>
+      <v-radio
+        v-on:click="getData(); fillData()"
+        label="숫자보기"
+        value="1"/>
+      <v-radio
+        v-on:click="getData(); fillData()"
+        label="비율보기"
+        value="2"/>
+    </v-radio-group>
   </div>
 </template>
 
@@ -41,6 +51,7 @@ export default {
     return {
       datacollection: null,
       radio: null,
+      radio1: null,
       realdata: {},
       options: {
         title: {
@@ -87,8 +98,8 @@ export default {
   methods: {
     fillData () {
       if (this.radio === '1') {
-        var labels = this.realdata.map(function (e) { return e.time })
-        var data1 = this.realdata.map(function (e) { return Number(e.all) })
+        var labels = this.realdata.elements.map(function (e) { return e.time })
+        var data1 = this.realdata.elements.map(function (e) { return Number(e.all) })
         this.datacollection = {
           labels: labels,
           datasets: [
@@ -103,11 +114,11 @@ export default {
           ]
         }
       } else if (this.radio === '2') {
-        var labels1 = this.realdata.map(function (e) { return e.time })
-        var datagroup11 = this.realdata.map(function (e) { return Number(e['1']) })
-        var datagroup12 = this.realdata.map(function (e) { return Number(e['2']) })
-        var datagroup13 = this.realdata.map(function (e) { return Number(e['3']) })
-        var datagroup14 = this.realdata.map(function (e) { return Number(e['4']) })
+        var labels1 = this.realdata.elements.map(function (e) { return e.time })
+        var datagroup11 = this.realdata.elements.map(function (e) { return Number(e['1']) })
+        var datagroup12 = this.realdata.elements.map(function (e) { return Number(e['2']) })
+        var datagroup13 = this.realdata.elements.map(function (e) { return Number(e['3']) })
+        var datagroup14 = this.realdata.elements.map(function (e) { return Number(e['4']) })
         this.datacollection = {
           labels: labels1,
           datasets: [
@@ -146,11 +157,11 @@ export default {
           ]
         }
       } else if (this.radio === '3') {
-        var labels2 = this.realdata.map(function (e) { return e.time })
-        var datagroup21 = this.realdata.map(function (e) { return Number(e['1']) })
-        var datagroup22 = this.realdata.map(function (e) { return Number(e['2']) })
-        var datagroup23 = this.realdata.map(function (e) { return Number(e['3']) })
-        var datagroup24 = this.realdata.map(function (e) { return Number(e['4']) })
+        var labels2 = this.realdata.elements.map(function (e) { return e.time })
+        var datagroup21 = this.realdata.elements.map(function (e) { return Number(e['1']) })
+        var datagroup22 = this.realdata.elements.map(function (e) { return Number(e['2']) })
+        var datagroup23 = this.realdata.elements.map(function (e) { return Number(e['3']) })
+        var datagroup24 = this.realdata.elements.map(function (e) { return Number(e['4']) })
         this.datacollection = {
           labels: labels2,
           datasets: [
@@ -196,7 +207,6 @@ export default {
         this.realdata = res.data
         this.fillData()
       } else {
-        console.log(this.date, this.date2, this.timeLength, this.radio)
         const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
         this.realdata = res.data
         this.fillData()
