@@ -11,18 +11,7 @@
       <v-flex xs6>
         <div>미접속 계정</div>
         <v-container>
-        <v-radio-group row v-model="radios3" mandatory>
-          <v-radio
-          label= "그룹별 UV 구성비율"
-          value= "1"
-          ></v-radio>
-          <v-radio
-          label= "제휴사별 UV 구성비율"
-          value= "2"
-          ></v-radio>
-          <Piechart v-if="radios3 === '1'"/>
-          <Piechart1 v-if="radios3 === '2'"/>
-        </v-radio-group>
+        <unused-dash />
       </v-container>
       </v-flex>
       </v-layout>
@@ -44,22 +33,20 @@
 </template>
 
 <script>
-import Piechart from './Piechart.vue'
-import Piechart1 from './Piechart1.vue'
 // import Piechart3 from './Piechart3.vue'
 import PVChart from './PVChart.vue'
 import AccountChart from './AccountChart.vue'
 import UVChart from './UVChart.vue'
+import UnusedDash from './UnusedDash.vue'
 
 export default {
   name: 'App',
   components: {
-    Piechart,
-    Piechart1,
     // Piechart3,
     PVChart,
     AccountChart,
-    UVChart
+    UVChart,
+    UnusedDash
   },
   data () {
     return {
