@@ -3,7 +3,6 @@ import Router from 'vue-router'
 
 import AccountPage from './../components/AccountPage.vue'
 import Dashboard from './../components/Dashboard.vue'
-import AddClient from './../components/AddClient.vue'
 import UVPage from './../components/UVPage.vue'
 import PVPage from './../components/PVPage.vue'
 import Realtime from './../components/Realtime'
@@ -34,11 +33,6 @@ export default new Router({
         { path: 'distribution', component: UserDistribution },
         { path: 'unused', component: UnusedAcc }
       ]
-    },
-    {
-      path: '/AddClient',
-      name: 'AddClient',
-      component: AddClient
     },
     {
       path: '/UVPage',
