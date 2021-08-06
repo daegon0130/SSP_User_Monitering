@@ -5,7 +5,7 @@
     <v-data-table
     :headers="headers"
     :items="datacollection"
-    :items-per-page="5"
+    :items-per-page="15"
     class="elevation-1"
   ></v-data-table>
     </v-container>
@@ -31,7 +31,7 @@ export default {
         { text: '미접속 기간', value: 'inactive_term' },
         { text: '최근 접속 일시', value: 'recent_history' }
       ],
-      datacollection: null
+      datacollection: []
     }
   },
   methods: {

@@ -23,7 +23,7 @@
       <v-radio
         v-on:click="getData(); fillData()"
         label="숫자보기"
-        value="1"/>
+        value="0"/>
       <v-radio
         v-on:click="getData(); fillData()"
         label="비율보기"
@@ -159,6 +159,7 @@ export default {
           ]
         }
       } else if (this.radio === '3') {
+        console.log('data:' + this.realdata.elements)
         var labels2 = this.realdata.elements.map(function (e) { return e.time })
         var datagroup21 = this.realdata.elements.map(function (e) { return Number(e['1']) })
         var datagroup22 = this.realdata.elements.map(function (e) { return Number(e['2']) })
