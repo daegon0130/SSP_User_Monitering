@@ -57,9 +57,9 @@ export default {
                 unit: this.timeLength,
                 displayFormats: {
                   hour: 'HH:mm',
-                  day: 'MMM DD',
-                  week: 'MM DD',
-                  month: 'MMM'
+                  day: 'MM/DD',
+                  week: 'MM/DD',
+                  month: 'M 월'
                 }
               },
               scaleLabel: {

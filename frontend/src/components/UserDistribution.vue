@@ -13,8 +13,13 @@
         v-on:click="getData(); fillData()"
         label="제휴사별 보기"
         value="3"/>
+      <v-radio
+        v-on:click="getData(); fillData()"
+        label="미접속 계정 보기"
+        value="4"/>
     </v-radio-group>
-    <pie-chart-2 :chartData="this.datacollection"/>
+    <unused-dash v-if="radio === '4'"/>
+    <pie-chart-2 v-else :chartData="this.datacollection"/>
   </div>
       </v-flex>
       <v-flex xs6>
@@ -88,11 +93,13 @@
 
 <script>
 import PieChart2 from './PieChart2.vue'
+import UnusedDash from './UnusedDash.vue'
 import axios from 'axios'
 
 export default {
   components: {
-    PieChart2
+    PieChart2,
+    UnusedDash
   },
   data () {
     return {

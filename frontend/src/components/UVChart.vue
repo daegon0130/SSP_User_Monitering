@@ -18,6 +18,7 @@
       조회
     </v-btn>
     <line-chart :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
+    <div class="right">
     <v-radio-group v-if="this.show" row v-model = "radio1" mandatory>
       <v-radio
         v-on:click="getData(); fillData()"
@@ -28,6 +29,7 @@
         label="비율보기"
         value="2"/>
     </v-radio-group>
+    </div>
   </div>
 </template>
 
@@ -68,9 +70,9 @@ export default {
                 unit: this.timeLength,
                 displayFormats: {
                   hour: 'HH:mm',
-                  day: 'MMM DD',
-                  week: 'MM DD',
-                  month: 'MMM'
+                  day: 'MM/DD',
+                  week: 'MM/DD',
+                  month: 'M 월'
                 }
               },
               scaleLabel: {
@@ -203,12 +205,14 @@ export default {
     },
     async getData (startdate, enddate, timeunit, group) {
       if (this.timeLength === 'hour') {
-        const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio), ratio: Number(this.radio1) })
         this.realdata = res.data
         this.fillData()
       } else {
-        const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio), ratio: Number(this.radio1) })
+        console.log(this.date, this.date2, this.timeLength, this.radio, this.radio1)
         this.realdata = res.data
+        console.log(this.realdata)
         this.fillData()
       }
     },
@@ -221,3 +225,9 @@ export default {
   }
 }
 </script>
+
+<style>
+  .right {
+    float: right;
+  }
+</style>

@@ -15,6 +15,16 @@ export default {
     }],
   data: () => ({
   }),
+  watch: {
+    options: {
+      handler (newOption, oldOption) {
+        this.$data._chart.destroy()
+        console.log('destroyed')
+        this.renderChart(this.chartData, this.options)
+      },
+      deep: true
+    }
+  },
   mounted () {
     this.renderChart(this.chartData, this.options)
   }

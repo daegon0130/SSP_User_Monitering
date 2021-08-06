@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <v-container>
+      <div>미접속 계정 조회</div>
     <v-data-table
     :headers="headers"
     :items="datacollection"

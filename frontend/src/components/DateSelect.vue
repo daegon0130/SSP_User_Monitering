@@ -37,6 +37,7 @@
     </v-col>
     <v-col
         cols="4"
+        sm="3"
     >
         <v-menu
             ref="menu"
@@ -85,6 +86,7 @@
     <span class="center">~</span>
     <v-col
         cols="4"
+        sm="3"
     >
         <v-menu
             ref="menu2"

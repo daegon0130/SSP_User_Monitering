@@ -15,6 +15,7 @@
     </v-btn>
     <StackedChartPV v-if="radio === '2'" :chart-data="datacollection" :timeLength="this.timeLength" :options="this.optionsstack" />
     <line-chart v-if="radio === '3'" :chart-data="datacollection" :timeLength="this.timeLength" :options="this.optionsline" />
+    <div class="right">
     <v-radio-group v-if="this.show" row v-model = "radio1" mandatory>
       <v-radio
         v-on:click="getData(); fillData()"
@@ -25,6 +26,7 @@
         label="비율보기"
         value="2"/>
     </v-radio-group>
+    </div>
   </div>
 </template>
 
@@ -68,8 +70,8 @@ export default {
                 unit: 'day',
                 displayFormats: {
                   hour: 'HH:mm',
-                  day: 'MM DD',
-                  week: 'MM DD',
+                  day: 'MM/DD',
+                  week: 'MM/DD',
                   month: 'MM'
                 }
               },
@@ -101,11 +103,11 @@ export default {
             {
               type: 'time',
               time: {
-                unit: 'day',
+                unit: this.timeLength,
                 displayFormats: {
                   hour: 'HH:mm',
                   day: 'MM/DD',
-                  week: 'MM DD',
+                  week: 'MM/DD',
                   month: 'MM'
                 }
               },
@@ -244,13 +246,13 @@ export default {
       } else if (this.radio === '2') {
         var labels3 = this.realdata.elements.map(function (e) { return e.time })
         var datagroup31 = this.realdata.elements.map(function (e) { return Number(e.das) })
-        var datagroup32 = this.realdata.elements.map(function (e) { return Number(e.cmc) })
-        var datagroup33 = this.realdata.elements.map(function (e) { return Number(e.sal) })
+        var datagroup32 = this.realdata.elements.map(function (e) { return Number(e.cmc1) + Number(e.cmc2) })
+        var datagroup33 = this.realdata.elements.map(function (e) { return Number(e.sal1) + Number(e.sal2) })
         // var datagroup34 = this.realdata.map(function (e) { return Number(e.ses) })
-        var datagroup35 = this.realdata.elements.map(function (e) { return Number(e.cus) })
-        var datagroup36 = this.realdata.elements.map(function (e) { return Number(e.sts) })
-        var datagroup37 = this.realdata.elements.map(function (e) { return Number(e.cuc) })
-        var datagroup38 = this.realdata.elements.map(function (e) { return Number(e.mkt) })
+        var datagroup35 = this.realdata.elements.map(function (e) { return Number(e.cus1) + Number(e.cus2) })
+        var datagroup36 = this.realdata.elements.map(function (e) { return Number(e.sts1) + Number(e.sts2) + Number(e.sts3) + Number(e.sts4) })
+        var datagroup37 = this.realdata.elements.map(function (e) { return Number(e.cuc1) + Number(e.cuc2) })
+        var datagroup38 = this.realdata.elements.map(function (e) { return Number(e.mkt1) + Number(e.mkt2) })
         this.datacollection = {
           labels: labels3,
           datasets: [
@@ -319,11 +321,11 @@ export default {
     },
     async getData (startdate, enddate, timeunit, group) {
       if (this.timeLength === 'hour') {
-        const res = await axios.post('http://localhost:3000/api/v/pv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        const res = await axios.post('http://localhost:3000/api/v/pv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio), ratio: Number(this.radio1) })
         this.realdata = res.data
         this.fillData()
       } else {
-        const res = await axios.post('http://localhost:3000/api/v/pv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio) })
+        const res = await axios.post('http://localhost:3000/api/v/pv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio), ratio: Number(this.radio1) })
         this.realdata = res.data
         this.fillData()
       }
@@ -341,3 +343,9 @@ export default {
   }
 }
 </script>
+
+<style>
+  .right {
+    float: right;
+  }
+</style>
