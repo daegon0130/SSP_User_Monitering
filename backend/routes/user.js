@@ -2,6 +2,9 @@ const express = require('express');
 const { sequelize } = require('../models');
 const { QueryTypes, Op } = require('sequelize');
 const schedule = require('node-schedule');
+const moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault("Asia/Seoul");
 
 const User = require('../models/usr_user');
 const UserLog = require('../models/user_log');
@@ -23,7 +26,8 @@ const get_domain  = (async ()=>{
 })();
 
 // groupby function
-const groupBy = function (data, grp) {
+const groupBy = (data, grp) =>{
+    console.log(data);
     let result = [];
     for (let i=0; i<data.length; i++){
         let res = { "time": data[i].time};
@@ -103,6 +107,7 @@ const getUserLog = schedule.scheduleJob('0 0 0 * * *', async () => {
   
 const router = express.Router();
 
+// 회원 정보
 router.get('/', async (req, res, next)=>{
     try{
         // 사용자 그룹별 옵션
@@ -136,9 +141,8 @@ router.get('/', async (req, res, next)=>{
         }
 
         // 현재 날짜로부터 90일전 날짜 구하기
-        let today = new Date();
-        today.setDate(today.getDate() - 90);
-        const ago90 = today.toISOString().split('T')[0];
+        const ago90 = moment().subtract(90, 'days').format('YYYY-MM-DD');
+        //const ago90 = today.toISOString().split('T')[0];
         console.log(ago90);
         let [{ inactive_user }] = await sequelize.query(
             'SELECT COUNT(user_id) AS inactive_user FROM usr_user WHERE `user_id` NOT IN (SELECT DISTINCT user_id FROM time_log WHERE asc_time > :date);',
@@ -169,6 +173,38 @@ router.get('/', async (req, res, next)=>{
     }
 });
 
+// 미접속 계정
+router.get('/unused', async (req, res, next)=>{
+    try{
+        let result = await User.findAll({
+            attributes : [
+                ['user_id', 'id'],
+                ['user_grp', 'group'],
+                ['user_org_id', 'company'],
+                ['acs_time', 'recent_history'],
+                [sequelize.fn('datediff', sequelize.fn("CURDATE") , sequelize.col('acs_time')), 'inactive_term'],
+            ],
+            raw: true,
+            order : [[sequelize.col('inactive_term'), 'DESC']]
+        });
+        console.log({
+            "result": "success",
+            "elements": result,
+        });
+        res.json({
+            "result": "success",
+            "elements": result,
+        });
+    } catch (err) {
+        console.log(err);
+        res.json({
+            "result": "fail",
+            "errMessage": err
+        });
+    }
+});
+
+// 사용자 추이
 router.post('/trends', async (req, res, next)=>{
     try{
         const { startDate, endDate, timeUnit, group }= req.body;
@@ -197,7 +233,7 @@ router.post('/trends', async (req, res, next)=>{
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
                 const lastDay = lastDate.getDate();
-                const dayOfTheWeek = lastDate.getDay();
+                const dayOfTheWeek = lastDate.getDay(); 
                 const newEndDate = lastDate.setDate(lastDay - dayOfTheWeek + 7);
                 const modEndDate=new Date(newEndDate).toISOString().split('T')[0];
 

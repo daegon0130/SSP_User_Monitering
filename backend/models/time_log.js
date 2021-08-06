@@ -9,7 +9,7 @@ module.exports = class TimeLog extends Sequelize.Model{
                 defaultValue: Sequelize.NOW,
             },
             page : {
-                type: Sequelize.CHAR(3),
+                type: Sequelize.STRING(10),
                 allowNull: false,
             },
             event_type : {

@@ -2,6 +2,7 @@ const express = require('express');
 const { sequelize } = require('../models');
 const { QueryTypes, Op, DatabaseError } = require('sequelize');
 const { User, TimeLog } = require('../models');
+const schedule = require('node-schedule');
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault("Asia/Seoul");
@@ -9,8 +10,8 @@ moment.tz.setDefault("Asia/Seoul");
 const router = express.Router();
 
 let user_grp_domain, user_org_id_domain, page_domain;
-
-const get_domain  = (async ()=>{
+// 사용자 그룹 값 도메인, 제휴사 아이디 도메인, 페이지 도메인 값 저장
+const get_domain_ = (async () => {
     user_grp_domain = await (async ()=>{
         const result = await sequelize.query('SELECT DISTINCT(user_grp) FROM usr_user', 
                     { 
@@ -48,6 +49,45 @@ const get_domain  = (async ()=>{
         return res;
     })();
 })();
+// 매일 00시 00분에 사용자 그룹 값 도메인, 제휴사 아이디 도메인, 페이지 도메인 값 저장
+const get_domain = schedule.scheduleJob('0 0 0 * * *', async () => {
+    user_grp_domain = await (async ()=>{
+        const result = await sequelize.query('SELECT DISTINCT(user_grp) FROM usr_user', 
+                    { 
+                        type: QueryTypes.SELECT
+                    });
+        let res = [];
+        for (let el of result){
+            res.push(el.user_grp);
+        }
+        console.log(res);
+        return res;
+    })();
+    user_org_id_domain = await (async ()=>{
+        const result = await sequelize.query('SELECT DISTINCT(user_org_id) FROM usr_user', 
+                    { 
+                        type: QueryTypes.SELECT
+                    });
+        let res = [];
+        for (let el of result){
+            res.push(el.user_org_id);
+        }
+        console.log(res);
+        return res;
+    })();
+    page_domain = await (async ()=>{
+        const result = await sequelize.query('SELECT DISTINCT(page) FROM time_log', 
+                    { 
+                        type: QueryTypes.SELECT
+                    });
+        let res = [];
+        for (let el of result){
+            res.push(el.page);
+        }
+        console.log(res);
+        return res;
+    })();
+});
 
 // groupby function
 const groupBy = function (data, key, grp) {
@@ -86,9 +126,6 @@ router.post('/uv', async (req, res, next)=>{
         if (group === 1){
             console.log(startDate, endDate);
             if (timeUnit === "hour"){
-                //let lastDate = new Date(endDate);
-                //lastDate.setDate(lastDate.getDate()+1);
-                //const modEndDate = lastDate.toISOString().split('T')[0];
                 uv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, COUNT(DISTINCT(user_id)) AS "all" FROM time_log WHERE asc_time > :startDate AND asc_time < :endDate GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d"), DATE_FORMAT(asc_time, "%H") ORDER BY time;', 
                 { 
                     replacements: { startDate: startDate, endDate: endDate},
@@ -166,9 +203,6 @@ router.post('/uv', async (req, res, next)=>{
             console.log(startDate, endDate);
             
             if (timeUnit === "hour"){
-                //let lastDate = new Date(endDate);
-                //lastDate.setDate(lastDate.getDate()+1);
-                //const modEndDate = lastDate.toISOString().split('T')[0];
                 uv= await sequelize.query('SELECT DATE_FORMAT(asc_time, "%Y-%m-%d %H:00:00") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE asc_time > :startDate AND asc_time < :endDate GROUP BY DATE_FORMAT(asc_time, "%Y-%m-%d"), DATE_FORMAT(asc_time, "%H"), user_grp ORDER BY time, user_grp;', 
                 { 
                     replacements: { startDate: startDate, endDate: endDate},
@@ -638,7 +672,7 @@ router.post('/page', async (req, res, next)=>{
         console.log(time);
         if (time){
             console.log(time);
-            pv= await sequelize.query('SELECT page, page AS subpage, COUNT(*) AS "num" FROM (SELECT * FROM time_log WHERE DATE_FORMAT(asc_time, "%Y-%m") = :time ) AS A WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.asc_time<A.asc_time AND B.user_id= A.user_id ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(asc_time, "%Y-%m"), page ORDER BY page;',
+            pv= await sequelize.query('SELECT page, page AS subpage, COUNT(*) AS "num" FROM time_log AS A WHERE DATE_FORMAT(asc_time, "%Y-%m") = :time AND NOT ( SELECT B.page FROM time_log AS B WHERE B.asc_time<A.asc_time AND B.user_id= A.user_id ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY page ORDER BY page;',
             {                           
                 replacements: { time : time },
                 type: QueryTypes.SELECT
