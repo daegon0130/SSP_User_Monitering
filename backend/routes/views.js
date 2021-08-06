@@ -669,6 +669,74 @@ router.post('/page', async (req, res, next)=>{
                 replacements: { time : time },
                 type: QueryTypes.SELECT
             });
+            for (let ele of pv){
+                switch (ele.page){
+                    case 'das':
+                        ele.page = '대시보드';
+                        ele.subpage = '대시보드';
+                        break;
+                    case 'cal':
+                        ele.page = '정산 관리';
+                        ele.subpage = '정산조회';
+                        break;
+                    case 'cus1':
+                        ele.page = '고객 관리';
+                        ele.subpage = '주문 고객 관리';
+                        break;
+                    case 'cus2':
+                        ele.page = '고객 관리';
+                        ele.subpage = '고객 민원 관리';
+                        break;
+                    case 'cuc1':
+                        ele.page = '고객 센터';
+                        ele.subpage = '공지 사항';
+                        break;
+                    case 'cuc2':
+                        ele.page = '고객 센터';
+                        ele.subpage = '1:1 문의';
+                        break;
+                    case 'mkt1':
+                        ele.page = '마케팅';
+                        ele.subpage = '프로모션 신청 조회';
+                        break;
+                    case 'mkt2':
+                        ele.page = '마케팅';
+                        ele.subpage = '프로모션';
+                        break;
+                    case 'cmc1':
+                        ele.page = '상품 관리';
+                        ele.subpage = '판매 상품 관리';
+                        break;
+                    case 'cmc2':
+                        ele.page = '상품 관리';
+                        ele.subpage = '상품 원장 조회';
+                        break;
+                    case 'sts1':
+                        ele.page = '통계 관리';
+                        ele.subpage = '일별 통계';
+                        break;
+                    case 'sts2':
+                        ele.page = '통계 관리';
+                        ele.subpage = '통합 일별 통계';
+                        break;
+                    case 'sts3':
+                        ele.page = '통계 관리';
+                        ele.subpage = '통합 채널 통계';
+                        break;
+                    case 'sts4':
+                        ele.page = '통계 관리';
+                        ele.subpage = '채널 통계';
+                        break;
+                    case 'sal1':
+                        ele.page = '판매 관리';
+                        ele.subpage = '결제 조회';
+                        break;
+                    case 'sal2':
+                        ele.page = '판매 관리';
+                        ele.subpage = '가입/주문 조회';
+                        break;
+                }
+            }
         }else{
             res.json({
                 "result": "fail",
