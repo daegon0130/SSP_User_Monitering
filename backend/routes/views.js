@@ -96,12 +96,13 @@ const groupBy = function (data, key, grp) {
         if (carry[group] === undefined) {
             carry[group] = {};
             carry[group].time = el[key];
+            
             if (grp==='user_grp'){
                 for (let ele of user_grp_domain){
                     carry[group][ele] = 0;
                 }
             }else if (grp==='user_org_id'){
-                console.log(user_org_id_domain);
+                //console.log(user_org_id_domain);
                 for (let ele of user_org_id_domain){
                     carry[group][ele] = 0;
                 }
@@ -115,7 +116,36 @@ const groupBy = function (data, key, grp) {
         return carry;
     }, {});
     return Object.values(sol);
-}
+};
+
+const getRatio = async (uv, startDate, endDate) =>{
+    let userNum = await sequelize.query('SELECT DATE_FORMAT(time, "%Y-%m-%d") AS time, total_num FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATE_FORMAT(time, "%Y-%m-%d");', 
+        { 
+            replacements: { startDate: startDate, endDate: endDate},
+            type: QueryTypes.SELECT
+        });
+    const userNumArr = userNum.reduce((carry, el) =>{
+        let group = el.time;             
+        carry[group] = {};
+        carry[group].time = el.time;
+        carry[group].num = el.total_num;
+        return carry;
+    }, {});
+    for (let i=0; i<uv.length; i++){
+        if (userNumArr[uv[i].time] === undefined){
+            [{last}] = await sequelize.query('SELECT total_num AS last FROM user_log ORDER BY id DESC LIMIT 1;', 
+            { 
+                type: QueryTypes.SELECT
+            });
+            uv[i].all  /= last;
+            userNumArr[uv[i].time] = {};
+            userNumArr[uv[i].time].num = last;
+        }else{
+            uv[i].all  /= userNumArr[uv[i].time].num;
+        }
+    }
+    return uv;
+};
 
 // UV 라우터
 router.post('/uv', async (req, res, next)=>{
@@ -131,24 +161,70 @@ router.post('/uv', async (req, res, next)=>{
                     replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
                 });
+                if (ratio === 1){
+                    uv= await getRatio(uv, startDate, endDate);
+                }
             } else if (timeUnit === "day"){
                 let lastDate = new Date(endDate);
                 lastDate.setDate(lastDate.getDate()+1);
                 const modEndDate = lastDate.toISOString().split('T')[0];
-                uv = await TimeLog.findAll({
-                    attributes : [
-                        [sequelize.fn('date_format', sequelize.col('acs_time'), '%Y-%m-%d'), 'time'],
-                        [sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('user_id'))), 'all'],
-                    ],
-                    where: {
-                        acs_time :  {
-                            [Op.lt]: modEndDate,
-                            [Op.gt]: startDate
+                if(ratio===1){
+                    uv = await TimeLog.findAll({
+                        attributes : [
+                            [sequelize.fn('date_format', sequelize.col('acs_time'), '%Y-%m-%d'), 'time'],
+                            [sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('user_id'))), 'all'],
+                        ],
+                        where: {
+                            acs_time :  {
+                                [Op.lt]: modEndDate,
+                                [Op.gt]: startDate
+                            },
                         },
-                    },
-                    group: [sequelize.fn('date_format', sequelize.col('acs_time'), '%Y-%m-%d')],
-                    raw: true
-                });
+                        group: [sequelize.fn('date_format', sequelize.col('acs_time'), '%Y-%m-%d')],
+                        raw: true
+                    });
+                    let userNum = await sequelize.query('SELECT DATE_FORMAT(time, "%Y-%m-%d") AS time, total_num FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATE_FORMAT(time, "%Y-%m-%d");', 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    const userNumArr = userNum.reduce((carry, el) =>{
+                        let group = el.time;             
+                        carry[group] = {};
+                        carry[group].time = el.time;
+                        carry[group].num = el.total_num;
+                        return carry;
+                    }, {});
+                    for (let i=0; i<uv.length; i++){
+                        if (userNumArr[uv[i].time] === undefined){
+                            [{last}] = await sequelize.query('SELECT total_num AS last FROM user_log ORDER BY id DESC LIMIT 1;', 
+                            { 
+                                type: QueryTypes.SELECT
+                            });
+                            uv[i].all  /= last;
+                            userNumArr[uv[i].time] = {};
+                            userNumArr[uv[i].time].num = last;
+                        }else{
+                        uv[i].all  /= userNumArr[uv[i].time].num;
+                        }
+                    }
+                }
+                else{
+                    uv = await TimeLog.findAll({
+                        attributes : [
+                            [sequelize.fn('date_format', sequelize.col('acs_time'), '%Y-%m-%d'), 'time'],
+                            [sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('user_id'))), 'all'],
+                        ],
+                        where: {
+                            acs_time :  {
+                                [Op.lt]: modEndDate,
+                                [Op.gt]: startDate
+                            },
+                        },
+                        group: [sequelize.fn('date_format', sequelize.col('acs_time'), '%Y-%m-%d')],
+                        raw: true
+                    });
+                }
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
                 const lastDay = lastDate.getDate();
@@ -161,26 +237,91 @@ router.post('/uv', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                uv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, COUNT(DISTINCT(user_id)) AS "all" FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATEDIFF(acs_time, :startDate) DIV 7;', 
-                { 
-                    replacements: { startDate: modStartDate, endDate: modEndDate},
-                    type: QueryTypes.SELECT
-                });
+                if(ratio===0){
+                    uv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, COUNT(DISTINCT(user_id)) AS "all" FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATEDIFF(acs_time, :startDate) DIV 7;', 
+                    { 
+                        replacements: { startDate: modStartDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    let userNum = await sequelize.query('SELECT DATE_FORMAT(time, "%Y-%m-%d") AS time, total_num FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATE_FORMAT(time, "%Y-%m-%d");', 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    const userNumArr = userNum.reduce((carry, el) =>{
+                        let group = el.time;             
+                        carry[group] = {};
+                        carry[group].time = el.time;
+                        carry[group].num = el.total_num;
+                        return carry;
+                    }, {});
+                    for (let i=0; i<uv.length; i++){
+                        if (userNumArr[uv[i].time] === undefined){
+                            [{last}] = await sequelize.query('SELECT total_num AS last FROM user_log ORDER BY id DESC LIMIT 1;', 
+                            { 
+                                type: QueryTypes.SELECT
+                            });
+                            uv[i].all  /= last;
+                            userNumArr[uv[i].time] = {};
+                            userNumArr[uv[i].time].num = last;
+                        }else{
+                        uv[i].all  /= userNumArr[uv[i].time].num;
+                        }
+                    }
+                }
+                else{
+                    uv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, COUNT(DISTINCT(user_id)) AS "all" FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATEDIFF(acs_time, :startDate) DIV 7;', 
+                    { 
+                        replacements: { startDate: modStartDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                }
+                
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
                 newEndDate.setMonth(newEndDate.getMonth() + 1);
                 newEndDate = newEndDate.toISOString().split('T')[0];
                 let modEndDate = newEndDate.slice(0, 7)+"-01";
                 let modStartDate = startDate.slice(0, 7)+ "-01";
-
-                console.log(endDate);
-                console.log(modStartDate);
-                console.log(modEndDate);
-                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, COUNT(DISTINCT(user_id)) AS "all" FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y%m");',
-                {                           
-                    replacements: { startDate: modStartDate, endDate: modEndDate},
-                    type: QueryTypes.SELECT
-                });
+                if(ratio === 0){
+                    uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, COUNT(DISTINCT(user_id)) AS "all" FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y%m");',
+                    {                           
+                        replacements: { startDate: modStartDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    let userNum = await sequelize.query('SELECT DATE_FORMAT(time, "%Y-%m-%d") AS time, total_num FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATE_FORMAT(time, "%Y-%m-%d");', 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    const userNumArr = userNum.reduce((carry, el) =>{
+                        let group = el.time;             
+                        carry[group] = {};
+                        carry[group].time = el.time;
+                        carry[group].num = el.total_num;
+                        return carry;
+                    }, {});
+                    for (let i=0; i<uv.length; i++){
+                        if (userNumArr[uv[i].time] === undefined){
+                            [{last}] = await sequelize.query('SELECT total_num AS last FROM user_log ORDER BY id DESC LIMIT 1;', 
+                            { 
+                                type: QueryTypes.SELECT
+                            });
+                            uv[i].all  /= last;
+                            userNumArr[uv[i].time] = {};
+                            userNumArr[uv[i].time].num = last;
+                        }else{
+                        uv[i].all  /= userNumArr[uv[i].time].num;
+                        }
+                    }
+                }
+                else{
+                    uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, COUNT(DISTINCT(user_id)) AS "all" FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y%m");',
+                    {                           
+                        replacements: { startDate: modStartDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                }
             }else{
                 res.json({
                     "result": "fail",
@@ -199,22 +340,106 @@ router.post('/uv', async (req, res, next)=>{
         // group by 사용자 그룹
         } else if(group === 2){
             console.log(startDate, endDate);
-            
             if (timeUnit === "hour"){
-                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d %H:00:00") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d %H"), user_grp ORDER BY time, user_grp;', 
-                { 
-                    replacements: { startDate: startDate, endDate: endDate},
-                    type: QueryTypes.SELECT
-                });
+                if(ratio === 1){
+                    uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d %H:00:00") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d %H"), user_grp ORDER BY time, user_grp;', 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    let userNum = await sequelize.query('SELECT DATE_FORMAT(time, "%Y-%m-%d") AS time, total_num FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATE_FORMAT(time, "%Y-%m-%d");', 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    const userNumArr = userNum.reduce((carry, el) =>{
+                        let group = el.time;             
+                        carry[group] = {};
+                        carry[group].time = el.time;
+                        carry[group].num = el.total_num;
+                        return carry;
+                    }, {});
+                    for (let i=0; i<uv.length; i++){
+                        if (userNumArr[uv[i].time] === undefined){
+                            [{last}] = await sequelize.query('SELECT total_num AS last FROM user_log ORDER BY id DESC LIMIT 1;', 
+                            { 
+                                type: QueryTypes.SELECT
+                            });
+                            uv[i].all  /= last;
+                            userNumArr[uv[i].time] = {};
+                            userNumArr[uv[i].time].num = last;
+                        }else{
+                        uv[i].all  /= userNumArr[uv[i].time].num;
+                        }
+                    }
+                }
+                else{
+                    uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d %H:00:00") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d %H"), user_grp ORDER BY time, user_grp;', 
+                    { 
+                        replacements: { startDate: startDate, endDate: endDate},
+                        type: QueryTypes.SELECT
+                    });
+                }
             } else if (timeUnit === "day"){
-                let lastDate = new Date(endDate);
-                lastDate.setDate(lastDate.getDate()+1);
-                const modEndDate = lastDate.toISOString().split('T')[0];
-                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d"), user_grp ORDER BY time, user_grp;', 
-                { 
-                    replacements: { startDate: startDate, endDate: modEndDate},
-                    type: QueryTypes.SELECT
-                });
+                if (ratio === 1){
+                    let lastDate = new Date(endDate);
+                    lastDate.setDate(lastDate.getDate()+1);
+                    const modEndDate = lastDate.toISOString().split('T')[0];
+                    uv= await sequelize.query(`
+                    SELECT 
+                        DATE_FORMAT(acs_time, "%Y-%m-%d") AS time, 
+                        user_grp, 
+                        COUNT(DISTINCT(time_log.user_id)) AS "all" 
+                    FROM 
+                        time_log JOIN usr_user 
+                        ON time_log.user_id = usr_user.user_id 
+                    WHERE 
+                        acs_time > :startDate 
+                        AND acs_time < :endDate 
+                    GROUP BY 
+                        DATE_FORMAT(acs_time, "%Y-%m-%d"), user_grp 
+                    ORDER BY 
+                        time, user_grp;`, 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    let userNum = await sequelize.query('SELECT DATE_FORMAT(time, "%Y-%m-%d") AS time, total_num FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATE_FORMAT(time, "%Y-%m-%d");', 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    const userNumArr = userNum.reduce((carry, el) =>{
+                        let group = el.time;             
+                        carry[group] = {};
+                        carry[group].time = el.time;
+                        carry[group].num = el.total_num;
+                        return carry;
+                    }, {});
+                    for (let i=0; i<uv.length; i++){
+                        if (userNumArr[uv[i].time] === undefined){
+                            [{last}] = await sequelize.query('SELECT total_num AS last FROM user_log ORDER BY id DESC LIMIT 1;', 
+                            { 
+                                type: QueryTypes.SELECT
+                            });
+                            uv[i].all  /= last;
+                            userNumArr[uv[i].time] = {};
+                            userNumArr[uv[i].time].num = last;
+                        }
+                        else{
+                        uv[i].all  /= userNumArr[uv[i].time].num;
+                        }
+                    }
+                } else {
+                    let lastDate = new Date(endDate);
+                    lastDate.setDate(lastDate.getDate()+1);
+                    const modEndDate = lastDate.toISOString().split('T')[0];
+                    uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d"), user_grp ORDER BY time, user_grp;', 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                }
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
                 const lastDay = lastDate.getDate();
@@ -227,11 +452,46 @@ router.post('/uv', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                uv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATEDIFF(acs_time, :startDate) DIV 7, user_grp ORDER BY time, user_grp;', 
-                { 
-                    replacements: { startDate: modStartDate, endDate: modEndDate},
-                    type: QueryTypes.SELECT
-                });
+                if(ratio === 1){
+                    uv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATEDIFF(acs_time, :startDate) DIV 7, user_grp ORDER BY time, user_grp;', 
+                    { 
+                        replacements: { startDate: modStartDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    let userNum = await sequelize.query('SELECT DATE_FORMAT(time, "%Y-%m-%d") AS time, total_num FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATE_FORMAT(time, "%Y-%m-%d");', 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    const userNumArr = userNum.reduce((carry, el) =>{
+                        let group = el.time;             
+                        carry[group] = {};
+                        carry[group].time = el.time;
+                        carry[group].num = el.total_num;
+                        return carry;
+                    }, {});
+                    for (let i=0; i<uv.length; i++){
+                        if (userNumArr[uv[i].time] === undefined){
+                            [{last}] = await sequelize.query('SELECT total_num AS last FROM user_log ORDER BY id DESC LIMIT 1;', 
+                            { 
+                                type: QueryTypes.SELECT
+                            });
+                            uv[i].all  /= last;
+                            userNumArr[uv[i].time] = {};
+                            userNumArr[uv[i].time].num = last;
+                        }
+                        else{
+                            uv[i].all  /= userNumArr[uv[i].time].num;
+                        }
+                    }
+                }
+                else{
+                    uv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATEDIFF(acs_time, :startDate) DIV 7, user_grp ORDER BY time, user_grp;', 
+                    { 
+                        replacements: { startDate: modStartDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                }
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
                 newEndDate.setMonth(newEndDate.getMonth() + 1);
@@ -242,11 +502,46 @@ router.post('/uv', async (req, res, next)=>{
                 console.log(endDate);
                 console.log(modStartDate);
                 console.log(modEndDate);
-                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) as "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y%m"), user_grp ORDER BY time, user_grp;',
-                {                           
-                    replacements: { startDate: modStartDate, endDate: modEndDate},
-                    type: QueryTypes.SELECT
-                });
+                if(ratio === 1){
+                    uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) as "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y%m"), user_grp ORDER BY time, user_grp;',
+                    {                           
+                        replacements: { startDate: modStartDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    let userNum = await sequelize.query('SELECT DATE_FORMAT(time, "%Y-%m-%d") AS time, total_num FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATE_FORMAT(time, "%Y-%m-%d");', 
+                    { 
+                        replacements: { startDate: startDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                    const userNumArr = userNum.reduce((carry, el) =>{
+                        let group = el.time;             
+                        carry[group] = {};
+                        carry[group].time = el.time;
+                        carry[group].num = el.total_num;
+                        return carry;
+                    }, {});
+                    for (let i=0; i<uv.length; i++){
+                        if (userNumArr[uv[i].time] === undefined){
+                            [{last}] = await sequelize.query('SELECT total_num AS last FROM user_log ORDER BY id DESC LIMIT 1;', 
+                            { 
+                                type: QueryTypes.SELECT
+                            });
+                            uv[i].all  /= last;
+                            userNumArr[uv[i].time] = {};
+                            userNumArr[uv[i].time].num = last;
+                        }
+                        else{
+                            uv[i].all  /= userNumArr[uv[i].time].num;
+                        }
+                    }
+                }
+                else{
+                    uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, user_grp, COUNT(DISTINCT(time_log.user_id)) as "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y%m"), user_grp ORDER BY time, user_grp;',
+                    {                           
+                        replacements: { startDate: modStartDate, endDate: modEndDate},
+                        type: QueryTypes.SELECT
+                    });
+                }
             }else{
                 res.json({
                     "result": "fail",
@@ -271,7 +566,7 @@ router.post('/uv', async (req, res, next)=>{
                 // let lastDate = new Date(endDate);
                 // lastDate.setDate(lastDate.getDate()+1);
                 // const modEndDate = lastDate.toISOString().split('T')[0];
-                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d %H:00:00") AS time, user_org_id, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d %H"), user_org_id ORDER BY time, user_org_id;', 
+                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d %H:00:00") AS time, user_org_id, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d %H"), user_org_id;', 
                 { 
                     replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
@@ -280,7 +575,7 @@ router.post('/uv', async (req, res, next)=>{
                 let lastDate = new Date(endDate);
                 lastDate.setDate(lastDate.getDate()+1);
                 const modEndDate = lastDate.toISOString().split('T')[0];
-                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d") AS time, user_org_id, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d"), user_org_id ORDER BY time, user_org_id;', 
+                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d") AS time, user_org_id, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d"), user_org_id ORDER BY time, "all";', 
                 { 
                     replacements: { startDate: startDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -297,7 +592,7 @@ router.post('/uv', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                uv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, user_org_id, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATEDIFF(acs_time, :startDate) DIV 7, user_org_id ORDER BY time, user_org_id;', 
+                uv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, user_org_id, COUNT(DISTINCT(time_log.user_id)) AS "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATEDIFF(acs_time, :startDate) DIV 7, user_org_id;', 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -312,7 +607,7 @@ router.post('/uv', async (req, res, next)=>{
                 console.log(endDate);
                 console.log(modStartDate);
                 console.log(modEndDate);
-                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, user_org_id, COUNT(DISTINCT(time_log.user_id)) as "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y%m"), user_org_id ORDER BY time, user_org_id;',
+                uv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, user_org_id, COUNT(DISTINCT(time_log.user_id)) as "all" FROM time_log JOIN usr_user ON time_log.user_id = usr_user.user_id WHERE acs_time > :startDate AND acs_time < :endDate GROUP BY DATE_FORMAT(acs_time, "%Y%m"), user_org_id;',
                 {                           
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -575,7 +870,7 @@ router.post('/pv', async (req, res, next)=>{
                 //let lastDate = new Date(endDate);
                 //lastDate.setDate(lastDate.getDate()+1);
                 //const modEndDate = lastDate.toISOString().split('T')[0];
-                pv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d %H:00:00") AS time, user_org_id, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.acs_time<A.acs_time AND B.user_id= A.user_id AND B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d"), DATE_FORMAT(acs_time, "%H"), user_org_id ORDER BY time, user_org_id;', 
+                pv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d %H:00:00") AS time, user_org_id, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.acs_time<A.acs_time AND B.user_id= A.user_id AND B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d"), DATE_FORMAT(acs_time, "%H"), user_org_id ORDER BY time, "all";', 
                 { 
                     replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
@@ -584,7 +879,7 @@ router.post('/pv', async (req, res, next)=>{
                 let lastDate = new Date(endDate);
                 lastDate.setDate(lastDate.getDate()+1);
                 const modEndDate = lastDate.toISOString().split('T')[0];
-                pv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d") AS time, user_org_id, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.acs_time<A.acs_time AND B.user_id= A.user_id AND B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d"), user_org_id ORDER BY time, user_org_id;', 
+                pv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m-%d") AS time, user_org_id, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.acs_time<A.acs_time AND B.user_id= A.user_id AND B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(acs_time, "%Y-%m-%d"), user_org_id ORDER BY time, "all";', 
                 { 
                     replacements: { startDate: startDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -601,7 +896,7 @@ router.post('/pv', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                pv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, user_org_id, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.acs_time<A.acs_time AND B.user_id= A.user_id AND B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATEDIFF(acs_time, :startDate) DIV 7, user_org_id ORDER BY time, user_org_id', 
+                pv= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, user_org_id, COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.acs_time<A.acs_time AND B.user_id= A.user_id AND B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATEDIFF(acs_time, :startDate) DIV 7, user_org_id ORDER BY time, all', 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -616,7 +911,7 @@ router.post('/pv', async (req, res, next)=>{
                 console.log(endDate);
                 console.log(modStartDate);
                 console.log(modEndDate);
-                pv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, user_org_id,COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.acs_time<A.acs_time AND B.user_id= A.user_id AND B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(acs_time, "%Y%m"),user_org_id ORDER BY time,user_org_id;',
+                pv= await sequelize.query('SELECT DATE_FORMAT(acs_time, "%Y-%m") AS time, user_org_id,COUNT(*) AS "all" FROM (SELECT * FROM time_log WHERE acs_time > :startDate AND acs_time < :endDate) AS A JOIN usr_user ON A.user_id = usr_user.user_id WHERE NOT ( SELECT B.page FROM time_log AS B WHERE B.acs_time<A.acs_time AND B.user_id= A.user_id AND B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) ORDER BY B.id DESC LIMIT 1 ) <=> A.page GROUP BY DATE_FORMAT(acs_time, "%Y%m"),user_org_id ORDER BY time, all;',
                 {                           
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -800,4 +1095,5 @@ router.post('/realtime', async (req, res, next)=>{
         next(err);
     }
 });
+
 module.exports = router;
