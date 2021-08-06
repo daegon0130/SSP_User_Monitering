@@ -19,7 +19,11 @@ module.exports = class User extends Sequelize.Model{
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
-            
+            acs_time : {
+                type: Sequelize.DATE,
+                allowNull: false,
+                defaultValue: Sequelize.NOW,
+            }
         }, {
             sequelize,
             timestamps: false,

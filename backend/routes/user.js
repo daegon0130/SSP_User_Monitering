@@ -86,7 +86,7 @@ const getUserLog = schedule.scheduleJob('0 0 0 * * *', async () => {
     const ago90 = today.toISOString().split('T')[0];
     console.log(ago90);
     let [{ inactive_user }] = await sequelize.query(
-        'SELECT COUNT(user_id) AS inactive_user FROM usr_user WHERE `user_id` NOT IN (SELECT DISTINCT user_id FROM time_log WHERE asc_time > :date);',
+        'SELECT COUNT(user_id) AS inactive_user FROM usr_user WHERE `user_id` NOT IN (SELECT DISTINCT user_id FROM time_log WHERE acs_time > :date);',
         {
             replacements: { date: ago90 },
             type: QueryTypes.SELECT,
@@ -145,7 +145,7 @@ router.get('/', async (req, res, next)=>{
         //const ago90 = today.toISOString().split('T')[0];
         console.log(ago90);
         let [{ inactive_user }] = await sequelize.query(
-            'SELECT COUNT(user_id) AS inactive_user FROM usr_user WHERE `user_id` NOT IN (SELECT DISTINCT user_id FROM time_log WHERE asc_time > :date);',
+            'SELECT COUNT(user_id) AS inactive_user FROM usr_user WHERE `user_id` NOT IN (SELECT DISTINCT user_id FROM time_log WHERE acs_time > :date);',
             {
                 replacements: { date: ago90 },
                 type: QueryTypes.SELECT,
@@ -181,8 +181,8 @@ router.get('/unused', async (req, res, next)=>{
                 ['user_id', 'id'],
                 ['user_grp', 'group'],
                 ['user_org_id', 'company'],
-                ['acs_time', 'recent_history'],
-                [sequelize.fn('datediff', sequelize.fn("CURDATE") , sequelize.col('acs_time')), 'inactive_term'],
+                ['recent_acs', 'recent_history'],
+                [sequelize.fn('datediff', sequelize.fn("CURDATE") , sequelize.col('recent_acs')), 'inactive_term'],
             ],
             raw: true,
             order : [[sequelize.col('inactive_term'), 'DESC']]
