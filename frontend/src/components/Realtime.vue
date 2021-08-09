@@ -3,18 +3,10 @@
   <v-container>
     <v-layout>
       <v-flex xs6>
-    <v-btn
-      color="success"
-    >
-      <v-icon>
-        mdi-refresh
-      </v-icon>
-      새로고침
-    </v-btn>
     </v-flex>
     <v-flex xs6>
+      <v-col cols="5" class="right">
     <v-select
-        class="right"
         v-model="timelength"
         :items="items"
         item-text="dis"
@@ -23,8 +15,12 @@
         outlined
         v-on:change="getData(); fillData()"
     ></v-select>
+      </v-col>
     </v-flex>
     </v-layout>
+    <v-btn>
+      조회
+    </v-btn>
     <line-chart :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
   </v-container>
 </v-app>
@@ -121,6 +117,10 @@ export default {
       const res = await axios.post('http://localhost:3000/api/v/realtime', { time: this.timelength })
       this.realdata = res.data
       this.fillData()
+      this.changetimelength()
+    },
+    changetimelength () {
+      this.options.scales.xAxes[0].time.unit = this.timeLength
     }
   },
   computed: {

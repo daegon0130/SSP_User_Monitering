@@ -27,7 +27,7 @@
       <v-radio
         v-on:click="getData(); fillData()"
         label="비율보기"
-        value="2"/>
+        value="1"/>
     </v-radio-group>
     </div>
   </div>
@@ -206,7 +206,8 @@ export default {
     },
     async getData (startdate, enddate, timeunit, group) {
       if (this.timeLength === 'hour') {
-        const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date, endDate: this.date2, timeUnit: this.timeLength, group: Number(this.radio), ratio: Number(this.radio1) })
+        const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: this.date + ' ' + this.time1 + ':00', endDate: this.date2 + ' ' + this.time2 + ':00', timeUnit: this.timeLength, group: Number(this.radio), ratio: Number(this.radio1) })
+        console.log(this.date + ' ' + this.time1 + ':00')
         this.realdata = res.data
         this.fillData()
       } else {

@@ -5,7 +5,7 @@
       <router-link to="/AccountPage">희원 모니터</router-link> |
       <router-link to="/UVPage">활성 사용자</router-link> |
       <router-link to="/PVPage">활성 모니터</router-link> |
-      <router-link to="/UVPage/hourly">실시간 모니터</router-link> |
+      <router-link to="/Realtime">실시간 모니터</router-link> |
     </div>
   </div>
 </template>

@@ -195,7 +195,7 @@ export default {
     modal: false,
     menu2: false,
     time1: '00:00',
-    time2: '24:00',
+    time2: '23:00',
     menu3: false,
     menu4: false,
     itemsuv: [

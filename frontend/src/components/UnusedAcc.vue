@@ -7,7 +7,8 @@
     :items="datacollection"
     :items-per-page="15"
     class="elevation-1"
-  ></v-data-table>
+  >
+  </v-data-table>
     </v-container>
   </v-app>
 </template>
@@ -29,17 +30,29 @@ export default {
         { text: '제휴사', value: 'company' },
         { text: '아이디', value: 'id' },
         { text: '미접속 기간', value: 'inactive_term' },
-        { text: '최 접속 일시', value: 'recent_history' }
+        { text: '최 접속 일시', value: 'recent_history', formatter: this.formatDate }
       ],
       datacollection: []
     }
   },
   methods: {
     async getData () {
-      const res = await axios.post('http://localhost:3000/api/v/user')
+      const res = await axios.get('http://localhost:3000/api/user/unused')
       this.datacollection = res.data.elements
       this.fillData()
+    },
+    fillData () {
+      var a
+      for (a in this.datacollection) {
+        if (a.company === 1) {
+          a.comany = '관리자'
+          console.log('a')
+        }
+      }
     }
+  },
+  mounted () {
+    this.getData()
   }
 }
 </script>

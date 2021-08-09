@@ -2,6 +2,7 @@
   <v-app>
     <v-container>
       <div>비인기 페이지 조회</div>
+      <v-cols cols="5" class="right">
       <v-select
         v-model="time"
         :items="items"
@@ -11,9 +12,12 @@
         outlined
         v-on:change="sendTimeLength(); changedate(); sendDate()"
     ></v-select>
+    </v-cols>
     <v-btn v-on:click="getData(); load()">
       조회
     </v-btn>
+    </v-container>
+    <v-container>
     <v-data-table
     :headers="headers"
     :items="datacollection"
@@ -80,3 +84,8 @@ export default {
   }
 }
 </script>
+<style>
+  .right {
+    float: right
+  }
+</style>

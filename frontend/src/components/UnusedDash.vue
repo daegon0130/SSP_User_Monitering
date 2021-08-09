@@ -69,7 +69,7 @@ export default {
         ],
         datasets: [{
           label: '미사용 계정',
-          data: [this.realdata.inactive_user, this.realdata.group['1'] + this.realdata.group['2'] + this.realdata.group['3'] + this.realdata.group['4']],
+          data: [this.realdata.inactive_user, this.realdata.group['1'] + this.realdata.group['2'] + this.realdata.group['3'] + this.realdata.group['4'] - this.realdata.inactive_user],
           backgroundColor: [
             'rgb(255, 99, 132)',
             'rgb(54, 162, 235)'

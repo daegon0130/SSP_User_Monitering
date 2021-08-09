@@ -20,11 +20,11 @@
       <v-radio
         v-on:click="getData(); fillData()"
         label="숫자보기"
-        value="1"/>
+        value="0"/>
       <v-radio
         v-on:click="getData(); fillData()"
         label="비율보기"
-        value="2"/>
+        value="1"/>
     </v-radio-group>
     </div>
   </div>
