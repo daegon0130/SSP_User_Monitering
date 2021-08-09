@@ -3,7 +3,7 @@
     <div>
     <v-container>
       <date-select-month v-if="this.timelength === 'month'" @receiveDate="receiveDate" @sendTimeLength="receiveTimeLength" @receiveTime="receiveTime" :datetype="'acc'" :timelength="this.timelength"/>
-      <date-select-week v-if="this.timelength === 'week'" @receiveDate="receiveDate" @sendTimeLength="receiveTimeLength" @receiveTime="receiveTime" :datetype="'acc'" :timelength="this.timelength"/>
+      <date-select-week v-else-if="this.timelength === 'week'" @receiveDate="receiveDate" @sendTimeLength="receiveTimeLength" @receiveTime="receiveTime" :datetype="'acc'" :timelength="this.timelength"/>
       <date-select v-else @receiveDate="receiveDate" @sendTimeLength="receiveTimeLength" @receiveTime="receiveTime" :datetype="'acc'" />
       <account-chart :date="this.date" :date2="this.date2" :time1="this.time1" :time2="this.time2" :timeLength="this.timelength" :show=true />
     </v-container>

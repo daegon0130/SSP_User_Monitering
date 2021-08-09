@@ -2,7 +2,8 @@
   <v-app>
     <v-container>
       <div>비인기 페이지 조회</div>
-      <v-cols cols="5" class="right">
+      <v-row justify="center">
+      <v-col cols="4">
       <v-select
         v-model="time"
         :items="items"
@@ -12,7 +13,8 @@
         outlined
         v-on:change="sendTimeLength(); changedate(); sendDate()"
     ></v-select>
-    </v-cols>
+    </v-col>
+      </v-row>
     <v-btn v-on:click="getData(); load()">
       조회
     </v-btn>

@@ -112,8 +112,8 @@ export default {
       { time: '2021-08-05 00:00:00', all: 6 },
       { time: '2021-08-05 01:00:00', all: 10 },
       { time: '2021-08-05 02:00:00', all: 10 },
-      { time: '2021-08-05 03:00:00', all: 10 },
-    ],
+      { time: '2021-08-05 03:00:00', all: 10 }
+    ]
   }),
   watch: {
     options: {
@@ -126,7 +126,7 @@ export default {
     }
   },
   mounted () {
-    this.renderChart(this.chartData, this.options)
+    this.renderChart(this.elements, this.options)
   }
 }
 </script>

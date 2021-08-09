@@ -3,9 +3,11 @@
     <v-container>
       <div>미접속 계정 조회</div>
     <v-data-table
+    @click:row="rowClick"
     :headers="headers"
     :items="datacollection"
     :items-per-page="15"
+    :item-class="itemBackground"
     class="elevation-1"
   >
   </v-data-table>
@@ -20,12 +22,6 @@ export default {
   data () {
     return {
       headers: [
-        {
-          text: '번호',
-          align: 'start',
-          sortable: false,
-          value: 'name'
-        },
         { text: '그룹', value: 'group' },
         { text: '제휴사', value: 'company' },
         { text: '아이디', value: 'id' },
@@ -40,14 +36,11 @@ export default {
       const res = await axios.get('http://localhost:3000/api/user/unused')
       this.datacollection = res.data.elements
       this.fillData()
+      this.search()
     },
-    fillData () {
-      var a
-      for (a in this.datacollection) {
-        if (a.company === 1) {
-          a.comany = '관리자'
-          console.log('a')
-        }
+    itemBackground: function (item) {
+      if (item.inactive_term >= 90) {
+        return 'red'
       }
     }
   },
@@ -56,3 +49,7 @@ export default {
   }
 }
 </script>
+<style >
+.red {
+  background-color: red}
+</style>

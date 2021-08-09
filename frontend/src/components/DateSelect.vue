@@ -77,7 +77,7 @@
                     <v-btn
                         text
                         color="primary"
-                        @click="calcDate(); $refs.menu.save(date); sendDate() "
+                        @click="calcDate(); $refs.menu.save(date); sendDate()"
                     >OK
                     </v-btn>
                 </v-date-picker>
@@ -254,6 +254,11 @@ export default {
       this.time2 = v + ':00'
       this.menu4 = false
       this.$emit('receiveTime', this.time1, this.time2)
+    },
+    calcDate1 () {
+      if (this.timeLength === 'day') {
+        console.log(this.date2.getTime())
+      }
     }
   },
   mounted () {

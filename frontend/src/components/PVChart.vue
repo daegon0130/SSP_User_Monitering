@@ -10,7 +10,7 @@
         label="그룹별 보기"
         value="3"/>
     </v-radio-group>
-    <v-btn v-if="show" v-on:click="getData(); fillData(); changetimelength() ">
+    <v-btn v-if="show" v-on:click="calcDate()">
       조회
     </v-btn>
     <StackedChartPV v-if="radio === '2'" :chart-data="datacollection" :timeLength="this.timeLength" :options="this.optionsstack" />
@@ -335,6 +335,27 @@ export default {
         this.optionsstack.scales.xAxes[0].time.unit = this.timeLength
       } else if (this.radio === '3') {
         this.optionsline.scales.xAxes[0].time.unit = this.timeLength
+      }
+    },
+    calcDate () {
+      var d1 = Date.parse(this.date)
+      var d2 = Date.parse(this.date2)
+      if (this.timeLength === 'day') {
+        if (d2 - d1 > 2592000000) {
+          alert('30일 이내의 기간만 검색 가능합니다.')
+        } else {
+          this.getData()
+          this.fillData()
+          this.changetimelength()
+        }
+      } else {
+        if (d2 - d1 > 2419200000) {
+          alert('12주 이내의 기간만 검색 가능합니다.')
+        } else {
+          this.getData()
+          this.fillData()
+          this.changetimelength()
+        }
       }
     }
   },

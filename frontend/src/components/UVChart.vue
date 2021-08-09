@@ -14,7 +14,7 @@
         label="제휴사별 보기"
         value="3"/>
     </v-radio-group>
-    <v-btn v-if="this.show" v-on:click="getData(); fillData(); changetimelength() ">
+    <v-btn v-if="this.show" v-on:click="calcDate() ">
       조회
     </v-btn>
     <line-chart :chart-data="datacollection" :timeLength="this.timeLength" :options="this.options" />
@@ -165,6 +165,19 @@ export default {
         var datagroup22 = this.realdata.elements.map(function (e) { return Number(e['2']) })
         var datagroup23 = this.realdata.elements.map(function (e) { return Number(e['3']) })
         var datagroup24 = this.realdata.elements.map(function (e) { return Number(e['4']) })
+        var datagroup25 = this.realdata.elements.map(function (e) { return Number(e['5']) })
+        var datagroup26 = this.realdata.elements.map(function (e) { return Number(e['6']) })
+        var datagroup27 = this.realdata.elements.map(function (e) { return Number(e['7']) })
+        var datagroup28 = this.realdata.elements.map(function (e) { return Number(e['8']) })
+        var datagroup29 = this.realdata.elements.map(function (e) { return Number(e['9']) })
+        var datagroup30 = this.realdata.elements.map(function (e) { return Number(e['10']) })
+        var datagroup31 = this.realdata.elements.map(function (e) { return Number(e['11']) })
+        var datagroup32 = this.realdata.elements.map(function (e) { return Number(e['12']) })
+        var datagroup33 = this.realdata.elements.map(function (e) { return Number(e['13']) })
+        var datagroup34 = this.realdata.elements.map(function (e) { return Number(e['14']) })
+        var datagroup35 = this.realdata.elements.map(function (e) { return Number(e['15']) })
+        var datagroup36 = this.realdata.elements.map(function (e) { return Number(e['16']) })
+        var datagroup37 = this.realdata.elements.map(function (e) { return Number(e['17']) })
         this.datacollection = {
           labels: labels2,
           datasets: [
@@ -199,6 +212,110 @@ export default {
               fill: false,
               data: datagroup24,
               tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000005'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup25,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000006'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup26,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000007'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup27,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000008'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup28,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000009'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup29,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000010'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup30,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000011'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup31,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000012'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup32,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000013'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup33,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000014'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup34,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000015'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup35,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000016'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup36,
+              tension: 0.1
+            },
+            {
+              label: this.$store.getters.getById('0000017'),
+              borderColor: 'rgb(32, 105, 236)',
+              pointBackgroundColor: 'rgb(32, 105, 236)',
+              fill: false,
+              data: datagroup37,
+              tension: 0.1
             }
           ]
         }
@@ -220,6 +337,39 @@ export default {
     },
     changetimelength () {
       this.options.scales.xAxes[0].time.unit = this.timeLength
+    },
+    calcDate () {
+      var d1 = Date.parse(this.date)
+      var d2 = Date.parse(this.date2)
+      if (this.timeLength === 'day') {
+        if (d2 - d1 > 2592000000) {
+          alert('30일 이내의 기간만 검색 가능합니다.')
+        } else {
+          this.getData()
+          this.fillData()
+          this.changetimelength()
+        }
+      } else if (this.timeLength === 'week') {
+        if (d2 - d1 > 7257600000) {
+          alert('12주 이내의 기간만 검색 가능합니다.')
+        } else {
+          this.getData()
+          this.fillData()
+          this.changetimelength()
+        }
+      } else if (this.timeLength === 'hour') {
+        if (d2 - d1 > 172800000) {
+          alert('2일 이내의 기간만 검색 가능합니다.')
+        } else {
+          this.getData()
+          this.fillData()
+          this.changetimelength()
+        }
+      } else {
+        this.getData()
+        this.fillData()
+        this.changetimelength()
+      }
     }
   },
   computed: {
