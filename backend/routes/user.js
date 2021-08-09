@@ -9,6 +9,9 @@ moment.tz.setDefault("Asia/Seoul");
 const User = require('../models/usr_user');
 const UserLog = require('../models/user_log');
 
+// /user 라우터 : 사용자 정보 API , 사용자 추이 API, 미접속 계정 API
+const router = express.Router();
+
 let user_org_id_domain;
 
 const get_domain  = (async ()=>{
@@ -104,8 +107,6 @@ const getUserLog = schedule.scheduleJob('0 0 0 * * *', async () => {
         inactive_user: inactive_user
     });
   });
-  
-const router = express.Router();
 
 // 회원 정보
 router.get('/', async (req, res, next)=>{
@@ -173,7 +174,7 @@ router.get('/', async (req, res, next)=>{
     }
 });
 
-// 미접속 계정
+// 미접속 계정 조회 API
 router.get('/unused', async (req, res, next)=>{
     try{
         let result = await User.findAll({
@@ -182,7 +183,7 @@ router.get('/unused', async (req, res, next)=>{
                 ['user_grp', 'group'],
                 ['user_org_id', 'company'],
                 ['recent_acs', 'recent_history'],
-                [sequelize.fn('datediff', sequelize.fn("CURDATE") , sequelize.col('recent_acs')), 'inactive_term'],
+                [sequelize.fn('greatest', sequelize.fn('datediff', sequelize.fn("CURDATE") , sequelize.col('recent_acs')), 0), 'inactive_term'],
             ],
             raw: true,
             order : [[sequelize.col('inactive_term'), 'DESC']]
@@ -204,7 +205,7 @@ router.get('/unused', async (req, res, next)=>{
     }
 });
 
-// 사용자 추이
+// 사용자 추이 API
 router.post('/trends', async (req, res, next)=>{
     try{
         const { startDate, endDate, timeUnit, group }= req.body;
