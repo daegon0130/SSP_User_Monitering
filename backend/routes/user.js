@@ -16,10 +16,14 @@ let user_org_id_domain;
 
 const get_domain  = (async ()=>{
     user_org_id_domain = (async ()=>{
-        const result = await sequelize.query('SELECT DISTINCT(user_org_id) FROM usr_user', 
-                    { 
-                        type: QueryTypes.SELECT
-                    });
+        const result = await sequelize.query(`
+            SELECT 
+                DISTINCT(user_org_id) 
+            FROM 
+                usr_user`, 
+        { 
+            type: QueryTypes.SELECT
+        });
         let res = [];
         for (let el of result){
             res.push(el.user_org_id);
@@ -88,8 +92,21 @@ const getUserLog = schedule.scheduleJob('0 0 0 * * *', async () => {
     today.setDate(today.getDate() - 90);
     const ago90 = today.toISOString().split('T')[0];
     console.log(ago90);
-    let [{ inactive_user }] = await sequelize.query(
-        'SELECT COUNT(user_id) AS inactive_user FROM usr_user WHERE `user_id` NOT IN (SELECT DISTINCT user_id FROM time_log WHERE acs_time > :date);',
+    let [{ inactive_user }] = await sequelize.query(`
+        SELECT 
+            COUNT(user_id) AS inactive_user 
+        FROM 
+            usr_user 
+        WHERE 
+            user_id
+            NOT IN (
+                        SELECT 
+                            DISTINCT user_id 
+                        FROM 
+                            time_log 
+                        WHERE 
+                            acs_time > :date
+                    );`,
         {
             replacements: { date: ago90 },
             type: QueryTypes.SELECT,
@@ -107,7 +124,7 @@ const getUserLog = schedule.scheduleJob('0 0 0 * * *', async () => {
         inactive_user: inactive_user
     });
   });
-
+ 
 // 회원 정보
 router.get('/', async (req, res, next)=>{
     try{
@@ -145,8 +162,21 @@ router.get('/', async (req, res, next)=>{
         const ago90 = moment().subtract(90, 'days').format('YYYY-MM-DD');
         //const ago90 = today.toISOString().split('T')[0];
         console.log(ago90);
-        let [{ inactive_user }] = await sequelize.query(
-            'SELECT COUNT(user_id) AS inactive_user FROM usr_user WHERE `user_id` NOT IN (SELECT DISTINCT user_id FROM time_log WHERE acs_time > :date);',
+        let [{ inactive_user }] = await sequelize.query(`
+            SELECT 
+                COUNT(user_id) AS inactive_user 
+            FROM 
+                usr_user 
+            WHERE 
+                user_id 
+                NOT IN (
+                            SELECT 
+                                DISTINCT user_id 
+                            FROM 
+                                time_log 
+                            WHERE acs_time > :date
+                            
+                        );`,
             {
                 replacements: { date: ago90 },
                 type: QueryTypes.SELECT,
@@ -243,7 +273,20 @@ router.post('/trends', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", MAX(total_num) AS "all" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7 ORDER BY time;', 
+                trends= await sequelize.query(`
+                    SELECT 
+                        (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", 
+                        MAX(total_num) AS "all" 
+                    FROM 
+                        user_log 
+                    WHERE 
+                        time > :startDate 
+                        AND 
+                        time < :endDate 
+                    GROUP BY 
+                        DATEDIFF(time, :startDate) DIV 7 
+                    ORDER BY 
+                        time;`, 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -331,7 +374,23 @@ router.post('/trends', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", MAX(adm) AS "1", MAX(aff) AS "2", MAX(opr) AS "3", MAX(etc) AS "4" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7 ORDER BY time;', 
+                trends= await sequelize.query(`
+                    SELECT 
+                        (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", 
+                        MAX(adm) AS "1", 
+                        MAX(aff) AS "2", 
+                        MAX(opr) AS "3", 
+                        MAX(etc) AS "4" 
+                    FROM 
+                        user_log 
+                    WHERE 
+                        time > :startDate 
+                        AND 
+                        time < :endDate 
+                    GROUP BY 
+                        DATEDIFF(time, :startDate) DIV 7 
+                    ORDER BY 
+                        time;`, 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -417,7 +476,20 @@ router.post('/trends', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", aff_list AS "all" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7 ORDER BY time;', 
+                trends= await sequelize.query(`
+                    SELECT 
+                        (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", 
+                        aff_list AS "all" 
+                    FROM 
+                        user_log 
+                    WHERE 
+                        time > :startDate 
+                        AND 
+                        time < :endDate 
+                    GROUP BY 
+                        DATEDIFF(time, :startDate) DIV 7 
+                    ORDER BY 
+                        time;`, 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
@@ -501,7 +573,20 @@ router.post('/trends', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                trends= await sequelize.query('SELECT (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", aff_list AS "all" FROM user_log WHERE time > :startDate AND time < :endDate GROUP BY DATEDIFF(time, :startDate) DIV 7 ORDER BY time;', 
+                trends= await sequelize.query(`
+                    SELECT 
+                        (:startDate + INTERVAL (DATEDIFF(time, :startDate) DIV 7) WEEK) AS "time", 
+                        aff_list AS "all" 
+                    FROM 
+                        user_log 
+                    WHERE 
+                        time > :startDate 
+                        AND 
+                        time < :endDate 
+                    GROUP BY 
+                        DATEDIFF(time, :startDate) DIV 7 
+                    ORDER BY 
+                        time;`, 
                 { 
                     replacements: { startDate: modStartDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
