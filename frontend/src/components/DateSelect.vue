@@ -188,7 +188,7 @@ export default {
     datetype: String
   },
   data: () => ({
-    date: (new Date((Date.now() - 2036800000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    date: (new Date((Date.now() - 950400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     date2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     timelength: 'day',
     menu: false,
@@ -233,7 +233,7 @@ export default {
         this.date = (new Date((Date.now() - 86400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
         this.date2 = (new Date((Date.now() - 86400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
       } else if (this.timelength === 'day') {
-        this.date = (new Date((Date.now() - 1036800000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+        this.date = (new Date((Date.now() - 950400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
         this.date2 = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
       } else if (this.timelength === 'week') {
         this.date = (new Date((Date.now() - 4354560000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)

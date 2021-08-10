@@ -5,7 +5,7 @@
     <v-container>
       <v-layout>
         <v-flex xs6>
-          <div>희원 모니터</div>
+          <div>회원 모니터</div>
           <account-chart :date="this.date" :date2="this.date2" :time1="this.time1" :time2="this.time2" :timeLength="this.timelength" :show=false />
         </v-flex>
       <v-flex xs6>

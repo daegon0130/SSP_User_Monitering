@@ -325,7 +325,9 @@ export default {
       var d1 = Date.parse(this.date)
       var d2 = Date.parse(this.date2)
       if (this.timeLength === 'day') {
-        if (d2 - d1 > 2592000000) {
+        if (d2 === d1) {
+          alert('이틀 이상의 기간만 검색 가능합니다.')
+        } else if (d2 - d1 > 2592000000) {
           alert('30일 이내의 기간만 검색 가능합니다.')
         } else {
           this.getData()
@@ -333,7 +335,9 @@ export default {
           this.changetimelength()
         }
       } else if (this.timeLength === 'week') {
-        if (d2 - d1 > 7257600000) {
+        if (d2 === d1) {
+          alert('2주 이상의 기간만 검색 가능합니다.')
+        } else if (d2 - d1 > 7257600000) {
           alert('12주 이내의 기간만 검색 가능합니다.')
         } else {
           this.getData()

@@ -26,7 +26,7 @@ export default {
         { text: '제휴사', value: 'company' },
         { text: '아이디', value: 'id' },
         { text: '미접속 기간', value: 'inactive_term' },
-        { text: '최 접속 일시', value: 'recent_history', formatter: this.formatDate }
+        { text: '최근 접속 일시', value: 'recent_history', formatter: this.formatDate }
       ],
       datacollection: []
     }

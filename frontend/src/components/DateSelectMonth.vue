@@ -118,8 +118,9 @@ export default {
       var d1 = Date.parse(this.time)
       var d2 = Date.parse(this.time1)
       if (d1 > d2) {
-        this.date = this.date2
+        this.time = this.time1
       }
+      console.log(d1, d2)
     },
     sendTimeLength () {
       this.$emit('sendTimeLength', this.timelength)

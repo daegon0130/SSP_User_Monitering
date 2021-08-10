@@ -93,8 +93,8 @@ export default {
     props: {
       datetype: String
     },
-    time: '2021-08-09',
-    time1: '2021-09-06',
+    time: '2021-05-24',
+    time1: '2021-08-09',
     items: [
       { dis: '2021년 1월 4일', key: '2021-01-04' },
       { dis: '2021년 1월 11일', key: '2021-01-11' },
@@ -142,7 +142,7 @@ export default {
       var d1 = Date.parse(this.time)
       var d2 = Date.parse(this.time1)
       if (d1 > d2) {
-        this.date = this.date2
+        this.time = this.time1
       }
     },
     sendTimeLength () {
