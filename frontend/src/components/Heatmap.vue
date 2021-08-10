@@ -1,132 +1,171 @@
 <script>
+import axios from 'axios'
 import { Bar, mixins } from 'vue-chartjs'
 const { reactiveProp } = mixins
 
 export default {
   extends: Bar,
   mixins: [reactiveProp],
-  props: [
-    {
-      date: String,
-      date2: String,
-      timeLength: String
-    }],
+  props: {
+    date: null,
+    date2: null
+  },
   data: () => ({
-    elements: [
-      { time: '2021-08-01 00:00:00', all: 10 },
-      { time: '2021-08-01 01:00:00', all: 10 },
-      { time: '2021-08-01 02:00:00', all: 10 },
-      { time: '2021-08-01 03:00:00', all: 9 },
-      { time: '2021-08-01 04:00:00', all: 10 },
-      { time: '2021-08-01 05:00:00', all: 10 },
-      { time: '2021-08-01 06:00:00', all: 10 },
-      { time: '2021-08-01 07:00:00', all: 10 },
-      { time: '2021-08-01 08:00:00', all: 10 },
-      { time: '2021-08-01 09:00:00', all: 10 },
-      { time: '2021-08-01 10:00:00', all: 10 },
-      { time: '2021-08-01 11:00:00', all: 10 },
-      { time: '2021-08-01 12:00:00', all: 9 },
-      { time: '2021-08-01 13:00:00', all: 10 },
-      { time: '2021-08-01 14:00:00', all: 10 },
-      { time: '2021-08-01 15:00:00', all: 10 },
-      { time: '2021-08-01 16:00:00', all: 10 },
-      { time: '2021-08-01 17:00:00', all: 10 },
-      { time: '2021-08-01 18:00:00', all: 10 },
-      { time: '2021-08-01 19:00:00', all: 10 },
-      { time: '2021-08-01 20:00:00', all: 10 },
-      { time: '2021-08-01 21:00:00', all: 9 },
-      { time: '2021-08-01 22:00:00', all: 10 },
-      { time: '2021-08-01 23:00:00', all: 10 },
-      { time: '2021-08-02 00:00:00', all: 10 },
-      { time: '2021-08-02 01:00:00', all: 10 },
-      { time: '2021-08-02 02:00:00', all: 10 },
-      { time: '2021-08-02 03:00:00', all: 10 },
-      { time: '2021-08-02 04:00:00', all: 10 },
-      { time: '2021-08-02 05:00:00', all: 10 },
-      { time: '2021-08-02 06:00:00', all: 9 },
-      { time: '2021-08-02 07:00:00', all: 10 },
-      { time: '2021-08-02 08:00:00', all: 10 },
-      { time: '2021-08-02 09:00:00', all: 10 },
-      { time: '2021-08-02 10:00:00', all: 10 },
-      { time: '2021-08-02 11:00:00', all: 10 },
-      { time: '2021-08-02 12:00:00', all: 10 },
-      { time: '2021-08-02 13:00:00', all: 10 },
-      { time: '2021-08-02 14:00:00', all: 10 },
-      { time: '2021-08-02 15:00:00', all: 9 },
-      { time: '2021-08-02 16:00:00', all: 10 },
-      { time: '2021-08-02 17:00:00', all: 10 },
-      { time: '2021-08-02 18:00:00', all: 10 },
-      { time: '2021-08-02 19:00:00', all: 10 },
-      { time: '2021-08-02 20:00:00', all: 10 },
-      { time: '2021-08-02 21:00:00', all: 10 },
-      { time: '2021-08-02 22:00:00', all: 10 },
-      { time: '2021-08-02 23:00:00', all: 10 },
-      { time: '2021-08-03 00:00:00', all: 10 },
-      { time: '2021-08-03 01:00:00', all: 9 },
-      { time: '2021-08-03 02:00:00', all: 10 },
-      { time: '2021-08-03 03:00:00', all: 10 },
-      { time: '2021-08-03 04:00:00', all: 10 },
-      { time: '2021-08-03 05:00:00', all: 10 },
-      { time: '2021-08-03 06:00:00', all: 10 },
-      { time: '2021-08-03 07:00:00', all: 10 },
-      { time: '2021-08-03 08:00:00', all: 10 },
-      { time: '2021-08-03 09:00:00', all: 10 },
-      { time: '2021-08-03 10:00:00', all: 10 },
-      { time: '2021-08-03 11:00:00', all: 9 },
-      { time: '2021-08-03 12:00:00', all: 10 },
-      { time: '2021-08-03 13:00:00', all: 10 },
-      { time: '2021-08-03 14:00:00', all: 10 },
-      { time: '2021-08-03 15:00:00', all: 10 },
-      { time: '2021-08-03 16:00:00', all: 10 },
-      { time: '2021-08-03 17:00:00', all: 10 },
-      { time: '2021-08-03 18:00:00', all: 10 },
-      { time: '2021-08-03 19:00:00', all: 10 },
-      { time: '2021-08-03 20:00:00', all: 10 },
-      { time: '2021-08-03 21:00:00', all: 9 },
-      { time: '2021-08-03 22:00:00', all: 10 },
-      { time: '2021-08-03 23:00:00', all: 10 },
-      { time: '2021-08-04 00:00:00', all: 9 },
-      { time: '2021-08-04 01:00:00', all: 10 },
-      { time: '2021-08-04 02:00:00', all: 10 },
-      { time: '2021-08-04 03:00:00', all: 10 },
-      { time: '2021-08-04 04:00:00', all: 10 },
-      { time: '2021-08-04 05:00:00', all: 9 },
-      { time: '2021-08-04 06:00:00', all: 6 },
-      { time: '2021-08-04 07:00:00', all: 10 },
-      { time: '2021-08-04 08:00:00', all: 10 },
-      { time: '2021-08-04 09:00:00', all: 10 },
-      { time: '2021-08-04 10:00:00', all: 10 },
-      { time: '2021-08-04 11:00:00', all: 10 },
-      { time: '2021-08-04 12:00:00', all: 10 },
-      { time: '2021-08-04 13:00:00', all: 10 },
-      { time: '2021-08-04 14:00:00', all: 10 },
-      { time: '2021-08-04 15:00:00', all: 6 },
-      { time: '2021-08-04 16:00:00', all: 10 },
-      { time: '2021-08-04 17:00:00', all: 10 },
-      { time: '2021-08-04 18:00:00', all: 10 },
-      { time: '2021-08-04 19:00:00', all: 10 },
-      { time: '2021-08-04 20:00:00', all: 10 },
-      { time: '2021-08-04 21:00:00', all: 10 },
-      { time: '2021-08-04 22:00:00', all: 10 },
-      { time: '2021-08-04 23:00:00', all: 10 },
-      { time: '2021-08-05 00:00:00', all: 6 },
-      { time: '2021-08-05 01:00:00', all: 10 },
-      { time: '2021-08-05 02:00:00', all: 10 },
-      { time: '2021-08-05 03:00:00', all: 10 }
-    ]
-  }),
-  watch: {
+    realdata: {},
+    outline: [
+      { time: '00:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '01:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '02:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '03:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '04:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '05:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '06:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '07:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '08:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '09:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '10:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '11:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '12:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '13:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '14:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '15:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '16:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '17:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '18:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '19:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '20:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '21:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '22:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 },
+      { time: '23:00', Sun: 1, Mon: 1, Tue: 1, Wed: 1, Thu: 1, Fri: 1, Sat: 1 }
+    ],
     options: {
-      handler (newOption, oldOption) {
-        this.$data._chart.destroy()
-        console.log('destroyed')
-        this.renderChart(this.chartData, this.options)
+      responsive: false,
+      scales: {
+        xAxes: [{
+          stacked: true
+        }],
+        yAxes: [{
+          barPercentage: 1.0,
+          stacked: true
+        }]
       },
-      deep: true
+      tooltips: {
+        callbacks: {
+          title: function (tooltipItems, data) {
+            return data.datasets[tooltipItems[0].datasetIndex].label + ', ' + tooltipItems[0].xLabel
+          }
+        }
+      },
+      legend: {
+        display: false
+      }
+    },
+    labels: null,
+    data1: null,
+    datacollection: null,
+    count: 0,
+    rgb: '0, 175, 221'
+  }),
+  methods: {
+    fillData () {
+      var labels = this.outline.map(function (e) { return e.time })
+      var data1 = this.outline.map(function (e) { return Number(e.Sun) })
+      var data2 = this.outline.map(function (e) { return Number(e.Mon) })
+      var data3 = this.outline.map(function (e) { return Number(e.Tue) })
+      var data4 = this.outline.map(function (e) { return Number(e.Wed) })
+      var data5 = this.outline.map(function (e) { return Number(e.Thu) })
+      var data6 = this.outline.map(function (e) { return Number(e.Fri) })
+      var data7 = this.outline.map(function (e) { return Number(e.Sat) })
+      this.datacollection = {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Sun',
+            backgroundColor: this.generateDatasetColors(this.realdata.elements, 10),
+            fill: false,
+            data: data2,
+            tension: 0.1,
+            barPercentage: 1.25
+          },
+          {
+            label: 'Mon',
+            backgroundColor: this.generateDatasetColors(this.realdata.elements, 10),
+            fill: false,
+            data: data3,
+            tension: 0.1,
+            barPercentage: 1.25
+          },
+          {
+            label: 'Tue',
+            backgroundColor: this.generateDatasetColors(this.realdata.elements, 10),
+            fill: false,
+            data: data1,
+            tension: 0.1,
+            barPercentage: 1.25
+          },
+          {
+            label: 'Wed',
+            backgroundColor: this.generateDatasetColors(this.realdata.elements, 10),
+            fill: false,
+            data: data4,
+            tension: 0.1,
+            barPercentage: 1.25
+          },
+          {
+            label: 'Thu',
+            backgroundColor: this.generateDatasetColors(this.realdata.elements, 10),
+            fill: false,
+            data: data5,
+            tension: 0.1,
+            barPercentage: 1.25
+          },
+          {
+            label: 'Fri',
+            backgroundColor: this.generateDatasetColors(this.realdata.elements, 10),
+            fill: false,
+            data: data6,
+            tension: 0.1,
+            barPercentage: 1.25
+          },
+          {
+            label: 'Sat',
+            backgroundColor: this.generateDatasetColors(this.realdata.elements, 10),
+            fill: false,
+            data: data7,
+            tension: 0.1,
+            barPercentage: 1.25
+          }
+        ]
+      }
+    },
+    generateDatasetColors: function (valuesArray, scale) {
+      var colors = []
+      for (let i = 0; i < 24; i++) {
+        var value = valuesArray[this.count].all
+        var opacity = value / scale
+        if (opacity > 1) {
+          opacity = 1
+        }
+        colors.push('rgba(' + this.rgb + ', ' + opacity + ')')
+        this.count = this.count + 1
+      }
+      console.log(colors)
+      return colors
+    },
+    async getData (startdate, enddate, timeunit, group, ratio) {
+      const res = await axios.post('http://localhost:3000/api/v/uv', { startDate: startdate, endDate: enddate, timeUnit: 'hour', group: 1, ratio: 0 })
+      this.realdata = res.data
+      this.fillData()
+      this.renderChart(this.datacollection, this.options)
+      this.count = 0
+    },
+    receiveDate (date, date1) {
+      this.date = date
+      this.date1 = date1
     }
   },
   mounted () {
-    this.renderChart(this.elements, this.options)
+    this.getData(this.date, this.date2, 'hour', 1, 0)
   }
 }
 </script>

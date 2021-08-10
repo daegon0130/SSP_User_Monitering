@@ -7,7 +7,7 @@ import UVPage from './../components/UVPage.vue'
 import PVPage from './../components/PVPage.vue'
 import Realtime from './../components/Realtime'
 import UserDistribution from './../components/UserDistribution'
-import Heatmap1 from './../components/Heatmap'
+import Heatmap from './../components/DateSelectHeat'
 import UVHome from './../components/UVHome'
 import UnusedAcc from './../components/UnusedAcc'
 import AccountHome from './../components/AccountHome'
@@ -39,7 +39,7 @@ export default new Router({
       name: 'UVPage',
       component: UVHome,
       children: [
-        { path: 'hourly', component: Heatmap1 },
+        { path: 'hourly', component: Heatmap },
         { path: '', component: UVPage }
       ]
     },

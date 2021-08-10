@@ -40,7 +40,7 @@ export default {
     },
     itemBackground: function (item) {
       if (item.inactive_term >= 90) {
-        return 'red'
+        return 'no'
       }
     }
   },
@@ -49,7 +49,9 @@ export default {
   }
 }
 </script>
-<style >
-.red {
-  background-color: red}
+<style>
+.no {
+  background-color: rgb(255, 114, 118)
+}
+
 </style>

@@ -2,10 +2,8 @@
 <v-app>
   <v-container>
     <v-layout>
-      <v-flex xs6>
-    </v-flex>
-    <v-flex xs6>
-      <v-col cols="5" class="right">
+      <v-row justify="center">
+      <v-col cols="4">
     <v-select
         v-model="timelength"
         :items="items"
@@ -16,7 +14,7 @@
         v-on:change="getData(); fillData()"
     ></v-select>
       </v-col>
-    </v-flex>
+      </v-row>
     </v-layout>
     <v-btn>
       조회

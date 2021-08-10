@@ -215,104 +215,104 @@ export default {
             },
             {
               label: this.$store.getters.getById('0000005'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(0, 105, 236)',
+              pointBackgroundColor: 'rgb(0, 105, 236)',
               fill: false,
               data: datagroup25,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000006'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(32, 0, 236)',
+              pointBackgroundColor: 'rgb(32, 0, 236)',
               fill: false,
               data: datagroup26,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000007'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(32, 105, 0)',
+              pointBackgroundColor: 'rgb(32, 105, 0)',
               fill: false,
               data: datagroup27,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000008'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(211, 105, 23)',
+              pointBackgroundColor: 'rgb(211, 105, 23)',
               fill: false,
               data: datagroup28,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000009'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(14, 111, 236)',
+              pointBackgroundColor: 'rgb(14, 111, 236)',
               fill: false,
               data: datagroup29,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000010'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(32, 14, 111)',
+              pointBackgroundColor: 'rgb(32, 14, 111)',
               fill: false,
               data: datagroup30,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000011'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(236, 14, 11)',
+              pointBackgroundColor: 'rgb(236, 14, 11)',
               fill: false,
               data: datagroup31,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000012'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(121, 64, 36)',
+              pointBackgroundColor: 'rgb(121, 64, 36)',
               fill: false,
               data: datagroup32,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000013'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(21, 155, 91)',
+              pointBackgroundColor: 'rgb(21, 155, 91)',
               fill: false,
               data: datagroup33,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000014'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(43, 105,36)',
+              pointBackgroundColor: 'rgb(43, 105,36)',
               fill: false,
               data: datagroup34,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000015'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(123, 5, 36)',
+              pointBackgroundColor: 'rgb(123, 5, 36)',
               fill: false,
               data: datagroup35,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000016'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(132, 205, 36)',
+              pointBackgroundColor: 'rgb(132, 205, 36)',
               fill: false,
               data: datagroup36,
               tension: 0.1
             },
             {
               label: this.$store.getters.getById('0000017'),
-              borderColor: 'rgb(32, 105, 236)',
-              pointBackgroundColor: 'rgb(32, 105, 236)',
+              borderColor: 'rgb(231, 55, 36)',
+              pointBackgroundColor: 'rgb(231, 55, 36)',
               fill: false,
               data: datagroup37,
               tension: 0.1
@@ -345,6 +345,7 @@ export default {
         if (d2 - d1 > 2592000000) {
           alert('30일 이내의 기간만 검색 가능합니다.')
         } else {
+          console.log(d2 - d1)
           this.getData()
           this.fillData()
           this.changetimelength()

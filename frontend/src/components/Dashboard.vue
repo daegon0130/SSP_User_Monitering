@@ -33,7 +33,6 @@
 </template>
 
 <script>
-// import Piechart3 from './Piechart3.vue'
 import PVChart from './PVChart.vue'
 import AccountChart from './AccountChart.vue'
 import UVChart from './UVChart.vue'
@@ -42,7 +41,6 @@ import UnusedDash from './UnusedDash.vue'
 export default {
   name: 'App',
   components: {
-    // Piechart3,
     PVChart,
     AccountChart,
     UVChart,

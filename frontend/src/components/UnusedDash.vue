@@ -1,16 +1,16 @@
 <template>
   <v-container>
-    <pie-chart-2 :chartData="this.datacollection"/>
+    <pie-chart :chartData="this.datacollection"/>
   </v-container>
 </template>
 
 <script>
-import PieChart2 from './PieChart2.vue'
+import PieChart from './PieChart.vue'
 import axios from 'axios'
 
 export default {
   components: {
-    PieChart2
+    PieChart
   },
   data () {
     return {

@@ -19,7 +19,7 @@
         value="4"/>
     </v-radio-group>
     <unused-dash v-if="radio === '4'"/>
-    <pie-chart-2 v-else :chartData="this.datacollection"/>
+    <pie-chart v-else :chartData="this.datacollection"/>
   </div>
       </v-flex>
       <v-flex xs6>
@@ -92,13 +92,13 @@
 </template>
 
 <script>
-import PieChart2 from './PieChart2.vue'
+import PieChart from './PieChart.vue'
 import UnusedDash from './UnusedDash.vue'
 import axios from 'axios'
 
 export default {
   components: {
-    PieChart2,
+    PieChart,
     UnusedDash
   },
   data () {
