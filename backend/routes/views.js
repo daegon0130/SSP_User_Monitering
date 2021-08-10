@@ -145,8 +145,8 @@ const groupBy = function (data, key, grp) {
     return Object.values(sol);
 };
 
-// uv, pv를 비율로 반환. (uv, pv 옵션)
-const getRatio = async (v, startDate, endDate) =>{
+// uv를 비율로 반환. (uv 비율 옵션)
+const getUvRatio = async (v, startDate, endDate) =>{
     let userNum = await sequelize.query(`
         SELECT 
             DATE_FORMAT(time, "%Y-%m-%d") AS time, 
@@ -193,6 +193,37 @@ const getRatio = async (v, startDate, endDate) =>{
     return v;
 };
 
+// pv를 비율로 반환. (pv 비율 옵션)
+const getPvRatio = async (v, startDate, endDate) =>{
+    console.log(endDate);
+    let uvNum = await TimeLog.findAll({
+        attributes : [
+            [sequelize.fn('date_format', sequelize.col('acs_time'), '%Y-%m-%d'), 'time'],
+            [sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('user_id'))), 'num'],
+        ],
+        where: {
+            acs_time :  {
+                [Op.lt]: endDate,
+                [Op.gt]: startDate
+            },
+        },
+        group: [sequelize.fn('date_format', sequelize.col('acs_time'), '%Y-%m-%d')],
+        raw: true
+    });
+    const uvNumArr = uvNum.reduce((carry, el) =>{
+        let group = el.time;             
+        carry[group] = {};
+        carry[group].time = el.time;
+        carry[group].num = el.num;
+        return carry;
+    }, {});
+    console.log(v, uvNumArr);
+    for (let i=0; i<v.length; i++){
+        v[i].all  /= uvNumArr[v[i].time].num;
+    }
+    return v;
+};
+
 // UV API
 router.post('/uv', async (req, res, next)=>{
     try{
@@ -222,7 +253,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, endDate);
+                    uv= await getUvRatio(uv, startDate, endDate);
                 }
             } else if (timeUnit === "day"){
                 let lastDate = new Date(endDate);
@@ -243,7 +274,7 @@ router.post('/uv', async (req, res, next)=>{
                     raw: true
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, modEndDate);
+                    uv= await getUvRatio(uv, startDate, modEndDate);
                 } 
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
@@ -274,7 +305,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, modEndDate);
+                    uv= await getUvRatio(uv, startDate, modEndDate);
                 }
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
@@ -299,7 +330,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, modStartDate, modEndDate);
+                    uv= await getUvRatio(uv, modStartDate, modEndDate);
                 }
             }else{
                 res.json({
@@ -343,7 +374,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, endDate);
+                    uv= await getUvRatio(uv, startDate, endDate);
                 }
             } else if (timeUnit === "day"){
                 let lastDate = new Date(endDate);
@@ -372,7 +403,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, endDate);
+                    uv= await getUvRatio(uv, startDate, endDate);
                 }
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
@@ -409,7 +440,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, endDate);
+                    uv= await getUvRatio(uv, startDate, endDate);
                 }
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
@@ -444,7 +475,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, endDate);
+                    uv= await getUvRatio(uv, startDate, endDate);
                 }     
             }else{
                 res.json({
@@ -489,7 +520,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, endDate);
+                    uv= await getUvRatio(uv, startDate, endDate);
                 }
             } else if (timeUnit === "day"){
                 let lastDate = new Date(endDate);
@@ -518,7 +549,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, endDate);
+                    uv= await getUvRatio(uv, startDate, endDate);
                 }
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
@@ -552,7 +583,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, endDate);
+                    uv= await getUvRatio(uv, startDate, endDate);
                 }
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
@@ -584,7 +615,7 @@ router.post('/uv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    uv= await getRatio(uv, startDate, endDate);
+                    uv= await getUvRatio(uv, startDate, endDate);
                 }
             }else{
                 res.json({
@@ -663,7 +694,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, endDate);
                 }
             } else if (timeUnit === "day"){
                 let lastDate = new Date(endDate);
@@ -699,9 +730,9 @@ router.post('/pv', async (req, res, next)=>{
                 { 
                     replacements: { startDate: startDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
-                });
+                }); 
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, endDate);
                 }
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
@@ -762,7 +793,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, endDate);
                 }
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
@@ -814,7 +845,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, endDate);
                 }
             }else{
                 res.json({
@@ -884,8 +915,9 @@ router.post('/pv', async (req, res, next)=>{
                     replacements: { startDate: startDate, endDate: endDate},
                     type: QueryTypes.SELECT
                 });
+                pv = groupBy(pv,'time', 'page');
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, endDate);
                 }
             } else if (timeUnit === "day"){
                 let lastDate = new Date(endDate);
@@ -897,41 +929,38 @@ router.post('/pv', async (req, res, next)=>{
                         page, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                     WHERE 
+                        acs_time > :startDate 
+                        AND 
+                        acs_time < :endDate
+                        AND
                         NOT ( 
                                 SELECT 
-                                    B.page 
+                                    B.page
                                 FROM 
                                     time_log AS B 
                                 WHERE 
-                                    B.id<A.id
+                                    B.acs_time< A.acs_time
                                     AND
                                     B.user_id= A.user_id
                                 ORDER BY 
                                     B.id DESC 
                                 LIMIT 1 
-                            ) <=> A.page 
+                            ) <=> A.page
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m-%d"), 
                         page 
                     ORDER BY 
-                        page;`, 
+                        time, 
+                        page;`,
                 { 
                     replacements: { startDate: startDate, endDate: modEndDate},
                     type: QueryTypes.SELECT
                 });
+                console.log('sdfsdfsdf',modEndDate);
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, modEndDate);
                 }
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
@@ -945,27 +974,22 @@ router.post('/pv', async (req, res, next)=>{
                 const newFirstDate = firstDate.setDate(firstDay - (firstDate.getDay()|| 7));
                 const modStartDate = new Date(newFirstDate).toISOString().split('T')[0];
                 console.log(modStartDate, modEndDate)
-                pv= await sequelize.query(`
+                pv= await sequelize.query(` 
                     SELECT 
                         (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, 
                         page, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                         JOIN usr_user 
                         ON A.user_id = usr_user.user_id 
                     WHERE 
+                        acs_time > :startDate 
+                        AND 
+                        acs_time < :endDate
+                        AND
                         NOT 
-                        ( 
+                        (
                             SELECT 
                                 B.page 
                             FROM 
@@ -989,7 +1013,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, endDate);
                 }
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
@@ -1044,7 +1068,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, endDate);
                 }
             }else{
                 res.json({
@@ -1052,8 +1076,6 @@ router.post('/pv', async (req, res, next)=>{
                     "errMessage": "'timeUnit' parameter for pv has value from {hour, day, week, month}"
                 });
             }
-            
-            console.log(pv.length);
             pv = groupBy(pv,'time', 'page');
             console.log({
                 result: "success",
@@ -1114,7 +1136,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, endDate);
                 }
             } else if (timeUnit === "day"){
                 let lastDate = new Date(endDate);
@@ -1159,7 +1181,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, modEndDate);
                 }
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
@@ -1216,7 +1238,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, modStartDate, modEndDate);
                 }
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
@@ -1271,7 +1293,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, modStartDate, modEndDate);
                 }
             }else{
                 res.json({
@@ -1279,7 +1301,6 @@ router.post('/pv', async (req, res, next)=>{
                     "errMessage": "'timeUnit' parameter for pv has value from {hour, day, week, month}"
                 });
             }
-            
             console.log(pv.length);
             pv = groupBy(pv,'time', 'user_grp');
             console.log({
@@ -1341,7 +1362,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, endDate);
                 }
             } else if (timeUnit === "day"){
                 let lastDate = new Date(endDate);
@@ -1392,7 +1413,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, startDate, modEndDate);
                 }
             } else if (timeUnit === "week"){
                 let lastDate = new Date(endDate);
@@ -1451,7 +1472,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, modStartDate, modEndDate);
                 }
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
@@ -1508,7 +1529,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, modStartDate, modEndDate);
                 }
             }else{
                 res.json({
@@ -1516,7 +1537,6 @@ router.post('/pv', async (req, res, next)=>{
                     "errMessage": "'timeUnit' parameter for pv has value from {hour, day, week, month}"
                 });
             }
-            
             console.log(pv.length);
             pv = groupBy(pv,'time', 'user_org_id');
             console.log({
