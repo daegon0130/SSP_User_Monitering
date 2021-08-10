@@ -16,6 +16,9 @@ module.exports = class TimeLog extends Sequelize.Model{
                 type: Sequelize.STRING(20),
                 allowNull: false,
             },
+            recent_acs : {
+                type: Sequelize.DATE,
+            }
         }, {
             sequelize,
             timestamps: false,

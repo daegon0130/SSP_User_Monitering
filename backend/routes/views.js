@@ -230,7 +230,7 @@ router.post('/uv', async (req, res, next)=>{
         const { startDate, endDate, timeUnit, group, ratio }= req.body;
         let uv;
         console.log(startDate);
-        // no grouping
+        // no grouping -> uv
         if (group === 1){
             console.log(startDate, endDate);
             if (timeUnit === "hour"){
@@ -346,8 +346,7 @@ router.post('/uv', async (req, res, next)=>{
                 result: "success",
                 elements: uv
             });
-            
-        // group by 사용자 그룹
+        // group by 사용자 그룹 -> 사용자 그룹별 uv 
         } else if(group === 2){
             console.log(startDate, endDate);
             if (timeUnit === "hour"){
@@ -658,9 +657,6 @@ router.post('/pv', async (req, res, next)=>{
         if (group === 1){
             console.log(startDate, endDate);
             if (timeUnit === "hour"){
-                //let lastDate = new Date(endDate);
-                //lastDate.setDate(lastDate.getDate()+1);
-                //const modEndDate = lastDate.toISOString().split('T')[0];
                 pv= await sequelize.query(`
                     SELECT 
                         DATE_FORMAT(acs_time, "%Y-%m-%d %H:00:00") AS time, 
@@ -668,23 +664,11 @@ router.post('/pv', async (req, res, next)=>{
                     FROM 
                         time_log AS A 
                     WHERE 
-                        A.acs_time > :startDate 
+                        acs_time > :startDate
                         AND 
-                        A.acs_time < :endDate 
-                        AND 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.id<A.id 
-                                    AND 
-                                    B.user_id= A.user_id 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time < :endDate
+                        AND
+                        recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m-%d %H") 
                     ORDER BY 
@@ -707,22 +691,11 @@ router.post('/pv', async (req, res, next)=>{
                     FROM 
                         time_log AS A 
                     WHERE 
-                        A.acs_time > :startDate 
+                        acs_time > :startDate
                         AND 
-                        A.acs_time < :endDate 
-                        AND 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.acs_time<A.acs_time
-                                    AND B.user_id= A.user_id 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time < :endDate
+                        AND
+                        recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m-%d") 
                     ORDER BY 
@@ -751,39 +724,13 @@ router.post('/pv', async (req, res, next)=>{
                         (:startDate + INTERVAL (DATEDIFF(acs_time, :startDate) DIV 7) WEEK) AS time, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                     WHERE 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    (
-                                        SELECT 
-                                            * 
-                                        FROM 
-                                            time_log 
-                                        WHERE 
-                                            acs_time > :startDate - INTERVAL 10 MINUTE 
-                                            AND 
-                                            acs_time < :endDate
-                                    ) AS B 
-                                WHERE 
-                                    B.acs_time<A.acs_time 
-                                    AND 
-                                    B.user_id= A.user_id 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATEDIFF(acs_time, :startDate) DIV 7 
                     ORDER BY 
@@ -810,30 +757,13 @@ router.post('/pv', async (req, res, next)=>{
                         DATE_FORMAT(acs_time, "%Y-%m") AS time, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                     WHERE 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.user_id= A.user_id 
-                                    AND 
-                                    B.acs_time<A.acs_time 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m") 
                     ORDER BY 
@@ -877,34 +807,13 @@ router.post('/pv', async (req, res, next)=>{
                         page, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
-                        JOIN 
-                        usr_user 
-                        ON A.user_id = usr_user.user_id 
+                        time_log AS A
                     WHERE 
-                        NOT 
-                        ( 
-                            SELECT 
-                                B.page 
-                            FROM 
-                                time_log AS B
-                            WHERE 
-                                B.acs_time<A.acs_time 
-                                AND 
-                                B.user_id= A.user_id 
-                            ORDER BY 
-                                B.id DESC 
-                            LIMIT 1 
-                        ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m-%d %H"), 
                         page 
@@ -931,23 +840,11 @@ router.post('/pv', async (req, res, next)=>{
                     FROM 
                         time_log AS A 
                     WHERE 
-                        acs_time > :startDate 
+                        acs_time > :startDate
                         AND 
                         acs_time < :endDate
                         AND
-                        NOT ( 
-                                SELECT 
-                                    B.page
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.acs_time< A.acs_time
-                                    AND
-                                    B.user_id= A.user_id
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page
+                        recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m-%d"), 
                         page 
@@ -981,27 +878,12 @@ router.post('/pv', async (req, res, next)=>{
                         COUNT(*) AS "all" 
                     FROM 
                         time_log AS A 
-                        JOIN usr_user 
-                        ON A.user_id = usr_user.user_id 
                     WHERE 
-                        acs_time > :startDate 
+                        acs_time > :startDate
                         AND 
                         acs_time < :endDate
                         AND
-                        NOT 
-                        (
-                            SELECT 
-                                B.page 
-                            FROM 
-                                time_log AS B 
-                            WHERE 
-                                B.acs_time < A.acs_time 
-                                AND 
-                                B.user_id= A.user_id 
-                            ORDER BY 
-                                B.id DESC 
-                            LIMIT 1 
-                        ) <=> A.page 
+                        recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATEDIFF(acs_time, :startDate) DIV 7, 
                         page 
@@ -1031,32 +913,13 @@ router.post('/pv', async (req, res, next)=>{
                         page, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
-                        JOIN usr_user 
-                        ON A.user_id = usr_user.user_id 
+                        time_log AS A 
                     WHERE 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.acs_time<A.acs_time 
-                                    AND 
-                                    B.user_id= A.user_id 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m"), 
                         page 
@@ -1099,32 +962,15 @@ router.post('/pv', async (req, res, next)=>{
                         user_grp, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                         JOIN usr_user 
                         ON A.user_id = usr_user.user_id 
                     WHERE 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.acs_time<A.acs_time 
-                                    AND 
-                                    B.user_id= A.user_id 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        A.recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m-%d %H"), 
                         user_grp 
@@ -1152,24 +998,11 @@ router.post('/pv', async (req, res, next)=>{
                         JOIN usr_user 
                         ON A.user_id = usr_user.user_id 
                     WHERE 
-                        acs_time > :startDate 
+                        acs_time > :startDate
                         AND 
-                        acs_time < :endDate 
-                        AND 
-                        NOT 
-                            ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.user_id= A.user_id 
-                                    AND 
-                                    B.id<A.id 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time < :endDate
+                        AND
+                        A.recent_acs > acs_time - INTERVAL 1 DAY 
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m-%d"), 
                         user_grp 
@@ -1201,32 +1034,15 @@ router.post('/pv', async (req, res, next)=>{
                         user_grp, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                         JOIN usr_user 
                         ON A.user_id = usr_user.user_id 
                     WHERE 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.acs_time<A.acs_time 
-                                    AND 
-                                    B.user_id= A.user_id 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        A.recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATEDIFF(acs_time, :startDate) DIV 7, 
                         user_grp 
@@ -1256,32 +1072,15 @@ router.post('/pv', async (req, res, next)=>{
                         user_grp, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                         JOIN usr_user 
                         ON A.user_id = usr_user.user_id 
                     WHERE 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.acs_time<A.acs_time 
-                                    AND 
-                                    B.user_id= A.user_id 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        A.recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m"), 
                         user_grp 
@@ -1323,34 +1122,16 @@ router.post('/pv', async (req, res, next)=>{
                         DATE_FORMAT(acs_time, "%Y-%m-%d %H:00:00") AS time, 
                         user_org_id, 
                         COUNT(*) AS "all" 
-                    FROM (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                    FROM 
+                        time_log AS A 
                         JOIN usr_user 
                         ON A.user_id = usr_user.user_id 
                     WHERE 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.acs_time<A.acs_time 
-                                    AND 
-                                    B.user_id= A.user_id 
-                                    AND 
-                                    B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        A.recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m-%d %H"), 
                         user_org_id 
@@ -1374,34 +1155,15 @@ router.post('/pv', async (req, res, next)=>{
                         user_org_id, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                         JOIN usr_user 
                         ON A.user_id = usr_user.user_id 
                     WHERE 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.acs_time<A.acs_time 
-                                    AND 
-                                    B.user_id= A.user_id 
-                                    AND 
-                                    B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        A.recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y-%m-%d"), 
                         user_org_id 
@@ -1433,34 +1195,15 @@ router.post('/pv', async (req, res, next)=>{
                         user_org_id, 
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                         JOIN usr_user 
                         ON A.user_id = usr_user.user_id 
                         WHERE 
-                            NOT (
-                                    SELECT 
-                                        B.page 
-                                    FROM 
-                                        time_log AS B 
-                                    WHERE 
-                                        B.acs_time<A.acs_time 
-                                        AND 
-                                        B.user_id= A.user_id 
-                                        AND 
-                                        B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) 
-                                    ORDER BY 
-                                        B.id DESC 
-                                    LIMIT 1 
-                                ) <=> A.page 
+                            acs_time > :startDate
+                            AND 
+                            acs_time < :endDate
+                            AND
+                            A.recent_acs > acs_time - INTERVAL 1 DAY
                         GROUP BY 
                             DATEDIFF(acs_time, :startDate) DIV 7, 
                             user_org_id 
@@ -1490,34 +1233,15 @@ router.post('/pv', async (req, res, next)=>{
                         user_org_id,
                         COUNT(*) AS "all" 
                     FROM 
-                        (
-                            SELECT 
-                                * 
-                            FROM 
-                                time_log 
-                            WHERE 
-                                acs_time > :startDate 
-                                AND 
-                                acs_time < :endDate
-                        ) AS A 
+                        time_log AS A 
                         JOIN usr_user 
                         ON A.user_id = usr_user.user_id 
                     WHERE 
-                        NOT ( 
-                                SELECT 
-                                    B.page 
-                                FROM 
-                                    time_log AS B 
-                                WHERE 
-                                    B.acs_time<A.acs_time 
-                                    AND 
-                                    B.user_id= A.user_id 
-                                    AND 
-                                    B.acs_time >(A.acs_time - INTERVAL 10 MINUTE) 
-                                ORDER BY 
-                                    B.id DESC 
-                                LIMIT 1 
-                            ) <=> A.page 
+                        acs_time > :startDate
+                        AND 
+                        acs_time < :endDate
+                        AND
+                        A.recent_acs > acs_time - INTERVAL 1 DAY
                     GROUP BY 
                         DATE_FORMAT(acs_time, "%Y%m"),
                         user_org_id 
@@ -1581,20 +1305,9 @@ router.post('/page', async (req, res, next)=>{
                 FROM 
                     time_log AS A 
                 WHERE 
-                    DATE_FORMAT(A.acs_time, "%Y-%m") = :time AND 
-                    NOT ( 
-                        SELECT 
-                            B.page 
-                        FROM 
-                            time_log AS B 
-                        WHERE 
-                            B.acs_time<A.acs_time 
-                            AND 
-                            B.user_id= A.user_id 
-                        ORDER BY 
-                            B.id DESC 
-                        LIMIT 1 
-                        ) <=> A.page 
+                    DATE_FORMAT(A.acs_time, "%Y-%m") = :time 
+                    AND 
+                    recent_acs > acs_time - INTERVAL 1 DAY
                 GROUP BY 
                     page`,
                 {                           
