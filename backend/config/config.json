@@ -5,7 +5,13 @@
     "database": "test",
     "host": "127.0.0.1",
     "dialect": "mysql", 
-    "timezone": "+09:00"
+    "timezone": "+09:00",
+    "pool": {
+      "max": 50,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
   },
   "test": {
     "username": "root",
