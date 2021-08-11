@@ -311,7 +311,7 @@ router.post('/trends', async (req, res, next)=>{
                             {
                                 time :  {
                                 [Op.lt]: modEndDate,
-                                [Op.gt]: startDate
+                                [Op.gte]: startDate
                                 //[Op.between]: [startDate, modEndDate]
                                 },
                             },
@@ -354,7 +354,7 @@ router.post('/trends', async (req, res, next)=>{
                     where: {
                                 time :  {
                                 [Op.lt]: modEndDate,
-                                [Op.gt]: startDate
+                                [Op.gte]: startDate
                                 //[Op.between]: [startDate, modEndDate]
                                 },
                     },
@@ -458,7 +458,7 @@ router.post('/trends', async (req, res, next)=>{
                     where: {
                         time :  {
                             [Op.lt]: modEndDate,
-                            [Op.gt]: startDate
+                            [Op.gte]: startDate
                         },
                     },
                     order: sequelize.col('time'),
