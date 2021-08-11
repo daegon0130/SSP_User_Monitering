@@ -40,6 +40,11 @@ export default {
     ],
     options: {
       responsive: false,
+      title: {
+        display: true,
+        text: '방문시간대별 사용자 수',
+        fontSize: 15
+      },
       scales: {
         xAxes: [{
           stacked: true,
@@ -53,7 +58,8 @@ export default {
           stacked: true,
           scaleLabel: {
             display: true,
-            labelString: '요일 (일 ~ 토)'
+            labelString: '일         월         화         수         목         금         토',
+            fontSize: 17
           },
           ticks: {
             display: false
