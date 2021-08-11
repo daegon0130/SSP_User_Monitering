@@ -72,7 +72,7 @@ export default {
             {
               scaleLabel: {
                 display: true,
-                labelString: 'Number of Accounts'
+                labelString: '계정 수'
               }
             }
           ]

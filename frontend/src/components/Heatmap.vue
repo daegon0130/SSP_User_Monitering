@@ -42,11 +42,22 @@ export default {
       responsive: false,
       scales: {
         xAxes: [{
-          stacked: true
+          stacked: true,
+          scaleLabel: {
+            display: true,
+            labelString: '시간'
+          }
         }],
         yAxes: [{
           barPercentage: 1.0,
-          stacked: true
+          stacked: true,
+          scaleLabel: {
+            display: true,
+            labelString: '요일 (일 ~ 토)'
+          },
+          ticks: {
+            display: false
+          }
         }]
       },
       tooltips: {

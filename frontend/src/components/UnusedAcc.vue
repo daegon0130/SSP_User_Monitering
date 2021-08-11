@@ -25,7 +25,7 @@ export default {
         { text: '그룹', value: 'group' },
         { text: '제휴사', value: 'company' },
         { text: '아이디', value: 'id' },
-        { text: '미접속 기간', value: 'inactive_term' },
+        { text: '미접속 기간 (일)', value: 'inactive_term' },
         { text: '최근 접속 일시', value: 'recent_history', formatter: this.formatDate }
       ],
       datacollection: []
@@ -51,7 +51,8 @@ export default {
 </script>
 <style>
 .no {
-  background-color: rgb(255, 114, 118)
+  background-color: rgb(255, 114, 118);
+  color: white;
 }
 
 </style>

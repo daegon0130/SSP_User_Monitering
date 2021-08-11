@@ -195,7 +195,7 @@ export default {
     modal: false,
     menu2: false,
     time1: '00:00',
-    time2: '23:00',
+    time2: '00:00',
     menu3: false,
     menu4: false,
     itemsuv: [
@@ -231,7 +231,7 @@ export default {
     changedate () {
       if (this.timelength === 'hour') {
         this.date = (new Date((Date.now() - 86400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
-        this.date2 = (new Date((Date.now() - 86400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
+        this.date2 = (new Date((Date.now()) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
       } else if (this.timelength === 'day') {
         this.date = (new Date((Date.now() - 950400000) - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
         this.date2 = (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)
