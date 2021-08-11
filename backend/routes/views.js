@@ -197,7 +197,6 @@ const getUvRatio = async (v, startDate, endDate) =>{
 
 // pv를 비율로 반환. (pv 비율 옵션)
 const getPvRatio = async (v, startDate, endDate) =>{
-    console.log(endDate);
     let uvNum = await TimeLog.findAll({
         attributes : [
             [sequelize.fn('date_format', sequelize.col('acs_time'), '%Y-%m-%d'), 'time'],
@@ -232,7 +231,6 @@ router.post('/uv', async (req, res, next)=>{
     try{
         const { startDate, endDate, timeUnit, group, ratio }= req.body;
         let uv;
-        console.log(startDate);
         // no grouping -> uv
         if (group === 1){
             console.log(startDate, endDate);
@@ -315,7 +313,7 @@ router.post('/uv', async (req, res, next)=>{
                 newEndDate.setMonth(newEndDate.getMonth() + 1);
                 newEndDate = newEndDate.toISOString().split('T')[0];
                 let modEndDate = newEndDate.slice(0, 7)+"-01";
-                let modStartDate = startDate.slice(0, 7)+ "-01";
+                let modStartDate = startDate+ "-01";
                 uv= await sequelize.query(`
                     SELECT 
                         DATE_FORMAT(acs_time, "%Y-%m") AS time, 
@@ -449,11 +447,7 @@ router.post('/uv', async (req, res, next)=>{
                 newEndDate.setMonth(newEndDate.getMonth() + 1);
                 newEndDate = newEndDate.toISOString().split('T')[0];
                 let modEndDate = newEndDate.slice(0, 7)+"-01";
-                let modStartDate = startDate.slice(0, 7)+ "-01";
-
-                console.log(endDate);
-                console.log(modStartDate);
-                console.log(modEndDate);
+                let modStartDate = startDate+ "-01";
                 uv= await sequelize.query(`
                     SELECT 
                         DATE_FORMAT(acs_time, "%Y-%m") AS time, 
@@ -592,7 +586,7 @@ router.post('/uv', async (req, res, next)=>{
                 newEndDate.setMonth(newEndDate.getMonth() + 1);
                 newEndDate = newEndDate.toISOString().split('T')[0];
                 let modEndDate = newEndDate.slice(0, 7)+"-01";
-                let modStartDate = startDate.slice(0, 7)+ "-01";
+                let modStartDate = startDate+ "-01";
 
                 console.log(endDate);
                 console.log(modStartDate);
@@ -750,7 +744,7 @@ router.post('/pv', async (req, res, next)=>{
                 newEndDate.setMonth(newEndDate.getMonth() + 1);
                 newEndDate = newEndDate.toISOString().split('T')[0];
                 let modEndDate = newEndDate.slice(0, 7)+"-01";
-                let modStartDate = startDate.slice(0, 7)+ "-01";
+                let modStartDate = startDate+ "-01";
 
                 console.log(endDate);
                 console.log(modStartDate);
@@ -905,11 +899,8 @@ router.post('/pv', async (req, res, next)=>{
                 newEndDate.setMonth(newEndDate.getMonth() + 1);
                 newEndDate = newEndDate.toISOString().split('T')[0];
                 let modEndDate = newEndDate.slice(0, 7)+"-01";
-                let modStartDate = startDate.slice(0, 7)+ "-01";
+                let modStartDate = startDate+ "-01";
 
-                console.log(endDate);
-                console.log(modStartDate);
-                console.log(modEndDate);
                 pv= await sequelize.query(`
                     SELECT 
                         DATE_FORMAT(acs_time, "%Y-%m") AS time, 
@@ -1064,11 +1055,8 @@ router.post('/pv', async (req, res, next)=>{
                 newEndDate.setMonth(newEndDate.getMonth() + 1);
                 newEndDate = newEndDate.toISOString().split('T')[0];
                 let modEndDate = newEndDate.slice(0, 7)+"-01";
-                let modStartDate = startDate.slice(0, 7)+ "-01";
+                let modStartDate = startDate+ "-01";
 
-                console.log(endDate);
-                console.log(modStartDate);
-                console.log(modEndDate);
                 pv= await sequelize.query(`
                     SELECT 
                         DATE_FORMAT(acs_time, "%Y-%m") AS time, 
@@ -1225,11 +1213,7 @@ router.post('/pv', async (req, res, next)=>{
                 newEndDate.setMonth(newEndDate.getMonth() + 1);
                 newEndDate = newEndDate.toISOString().split('T')[0];
                 let modEndDate = newEndDate.slice(0, 7)+"-01";
-                let modStartDate = startDate.slice(0, 7)+ "-01";
-
-                console.log(endDate);
-                console.log(modStartDate);
-                console.log(modEndDate);
+                let modStartDate = startDate+ "-01";
                 pv= await sequelize.query(`
                     SELECT 
                         DATE_FORMAT(acs_time, "%Y-%m") AS time, 
@@ -1295,26 +1279,32 @@ router.post('/pv', async (req, res, next)=>{
 // 페이지 조회 API
 router.post('/page', async (req, res, next)=>{
     try{
-        const { time }= req.body;
+        const { startMonth, endMonth }= req.body;
         let pv;
-        console.log(time);
-        if (time){
-            console.log(time);
+        if (startMonth && endMonth){
+            console.log(startMonth, endMonth);
+            let newStartMonth = new Date(startMonth);
+            let newEndMonth = new Date(endMonth);
+            newEndMonth.setMonth(newEndMonth.getMonth() + 1);
+            newEndMonth = newEndMonth.toISOString().split('T')[0];
+            newStartMonth = newStartMonth.toISOString().split('T')[0];
             pv= await sequelize.query(`
                 SELECT 
                     page, 
                     page AS subpage, 
                     COUNT(*) AS "num" 
                 FROM 
-                    time_log AS A 
+                    time_log
                 WHERE 
-                    DATE_FORMAT(A.acs_time, "%Y-%m") = :time 
+                    acs_time > :startMonth
+                    AND
+                    acs_time < :endMonth
                     AND 
                     recent_acs > acs_time - INTERVAL 1 DAY
                 GROUP BY 
                     page`,
                 {                           
-                    replacements: { time : time },
+                    replacements: { startMonth: newStartMonth, endMonth: newEndMonth },
                     type: QueryTypes.SELECT
                 });
             for (let ele of pv){
@@ -1388,7 +1378,7 @@ router.post('/page', async (req, res, next)=>{
         }else{
             res.json({
                 "result": "fail",
-                "errMessage": "'time' parameter is essential. You have to fill 'time' parameter"
+                "errMessage": "'startMonth', 'endMonth' parameters are essential. You have to fill parameter value"
             });
         }
         console.log({
