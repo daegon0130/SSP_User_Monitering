@@ -898,7 +898,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getPvRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, modStartDate, modEndDate);
                 }
             } else if (timeUnit === "month"){
                 let newEndDate = new Date(endDate);
@@ -934,7 +934,7 @@ router.post('/pv', async (req, res, next)=>{
                     type: QueryTypes.SELECT
                 });
                 if (ratio === 1){
-                    pv= await getPvRatio(pv, startDate, endDate);
+                    pv= await getPvRatio(pv, modStartDate, modEndDate);
                 }
             }else{
                 res.json({
