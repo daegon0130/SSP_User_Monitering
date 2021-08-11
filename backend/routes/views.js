@@ -184,10 +184,12 @@ const getUvRatio = async (v, startDate, endDate) =>{
                 type: QueryTypes.SELECT
             });
             v[i].all  /= last;
+            v[i].all = Number(v[i].all.toFixed(2));
             userNumArr[v[i].time] = {};
             userNumArr[v[i].time].num = last;
         }else{
             v[i].all  /= userNumArr[v[i].time].num;
+            v[i].all = Number(v[i].all.toFixed(2));
         }
     }
     return v;
@@ -220,6 +222,7 @@ const getPvRatio = async (v, startDate, endDate) =>{
     console.log(v, uvNumArr);
     for (let i=0; i<v.length; i++){
         v[i].all  /= uvNumArr[v[i].time].num;
+        v[i].all = Number(v[i].all.toFixed(2));
     }
     return v;
 };
